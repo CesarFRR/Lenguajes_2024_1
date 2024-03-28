@@ -1,0 +1,5 @@
+implementacion: analizador sintactico y semantico con CUP
+
+Crear las gramaticas y el árbol
+
+Implementar la aplicación del proyecto: Teoria de rachas
