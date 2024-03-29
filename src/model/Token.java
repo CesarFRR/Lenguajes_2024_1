@@ -68,4 +68,5 @@ public enum TokenType {
     E_ID_NO_,
     E_SIMB_NOT_FOUND,
     COMENTARIO_DOC,
+    EOF,
 }

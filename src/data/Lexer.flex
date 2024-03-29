@@ -143,4 +143,5 @@ String = '"' {EntradaDeCaracter}* '"' | "'" {EntradaDeCaracter}* "'"
 . { return token(TokenType.E_SIMB_NOT_FOUND, yytext(), yyline, yycolumn); }
 
 
-
+/*Fin de archivo, importante a futuro para el analizador sintactico + semantica*/
+<<EOF>> { return new Token(TokenType.EOF, "", yyline, yycolumn); }
