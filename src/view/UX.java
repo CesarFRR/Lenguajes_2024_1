@@ -55,57 +55,7 @@ public class UX extends javax.swing.JFrame {
         /* If Nimbus (introduced in Java SE 6) is not available, stay with the default look and feel.
          * For details see http://download.oracle.com/javase/tutorial/uiswing/lookandfeel/plaf.html 
          */
-        String osName = System.getProperty("os.name").toLowerCase();
-        boolean isWindows = osName.contains("windows");
-        boolean isLinux = osName.contains("linux");
-        javax.swing.UIManager.LookAndFeelInfo[] lista = javax.swing.UIManager.getInstalledLookAndFeels();
-
-            // Convert to a list of names using stream and lambda
-        List<String> osList = new ArrayList<>();
-        for (javax.swing.UIManager.LookAndFeelInfo name: lista){
-            osList.add(name.getClassName());
-        }
-        System.out.print("lista: " + osList);
-        String selectedStyle = null;
-
-        if (isWindows) {
-            for (String name : osList) {
-                if (name.toLowerCase().contains("windows")) {
-                    selectedStyle = name;
-                    break;
-                }
-            }
-        } else if (isLinux) {
-            for (String name : osList) {
-                if (name.toLowerCase().contains("gtk") || name.toLowerCase().contains("motif")) {
-                    selectedStyle = name;
-                    break;
-                }
-            }
-        }
-
-        if (selectedStyle == null) {
-            selectedStyle = "Nimbus";
-        }
-        try {
-           
-            
-            System.out.print("seleccionado: " + selectedStyle);
-            
-           
-            javax.swing.UIManager.setLookAndFeel(selectedStyle);
-                   
-               
-        } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UX.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(UX.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(UX.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(UX.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
-        }
-        //</editor-fold>
+        
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

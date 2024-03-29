@@ -12,4 +12,4 @@ fi
 
 echo "Generando analizador léxico java, directorio actual: $(pwd)"
 
-jflex -d src/model/ src/data/Lexer.flex
+jflex -d src/model/scanner/ src/data/Lexer.flex

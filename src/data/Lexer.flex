@@ -1,3 +1,6 @@
+package model.scanner;
+import model.scanner.Token;
+import model.scanner.TokenType;
 %%
 %class Lexer
 %type Token
@@ -19,13 +22,12 @@
     // String[] literalesNumericos = {"MAX_INT", "MAX_FLOAT"};
     // String[] literalesCadena = {"\"\"", "'C'"};
     // String[] literalesBooleanos_LIT_BOOL = {"true", "false"};
-    // String[] comentarios = {"Se utilizan para documentar el código y no son interpretados por el compilador."};
+    // String[] comentarios = {"Se utilizan para documentar el código y no son interpretados por el compilador. comienzan con #"};
 
     // String[] ALL_TOKENS = ['IF', 'ELSE', 'ELIF', 'WHILE', 'FOR', 'RETURN', 'BREAK', 'CONTINUE', 'FN', 'BOOL', 'INT', 'FLOAT', 'STRING', 'TRUE', 'FALSE', 'NULL', 'MEAN', 'MAX', 'MIN', 'MEDIAN', 'MODE', 'OP_SUMA', 'OP_RESTA', 'OP_MULT', 'OP_DIV', 'OP_MOD', 'OP_MENOR', 'OP_MENOR_IGUAL', 'OP_MAYOR', 'OP_MAYOR_IGUAL', 'OP_IGUAL', 'OP_DIFERENTE', 'OP_AND', 'OP_OR', 'OP_NOT', 'OP_ASIGN', 'L_PARENTESIS', 'R_PARENTESIS', 'L_LLAVE', 'R_LLAVE', 'L_CORCHETE', 'R_CORCHETE', 'COMA', 'PUNTO_COMA', 'PUNTO', 'DOS_PUNTOS', 'NUM_ENTERO', 'NUM_FLOTANTE', 'STRING', 'E_NUM_START_ZERO', 'E_ID_NO_', 'E_SIMB_NOT_FOUND']
 
     /* Explicación: se usa un enum de java que "enumera" cada nombre con un numero, esto se hace porque aun no se puede usar Symbol y Token de java_cup.runtime porque se necesita un archivo CUP y aun no se puede usar la libreria CUP porque hace parte del taller 2 y el profe prohibió eso, asi que en taller 1 --> enum */
-    import model.Token;
-    import model.TokenType;
+    
     private Token token(TokenType type, String lexeme, int line, int column){
         return new Token(type, lexeme, line, column);
     }
@@ -37,9 +39,9 @@ EntradaDeCaracter = [^\r\n]
 EspacioEnBlanco = {TerminadorDeLinea} | [ \t\f]
 ComentarioTradicional = "#" {EntradaDeCaracter}*
 FinDeLineaComentario = "#" {EntradaDeCaracter}* {TerminadorDeLinea}?
-ComentarioDeDocumentacion = "\"\"\""[^\"]*"\"\"\"" | "'''"[^\']*"'''"
+//ComentarioDeDocumentacion = "\"\"\""[^\"]*"\"\"\"" | "'''"[^\']*"'''"
 
-Comentario = {ComentarioTradicional} | {FinDeLineaComentario}  | {ComentarioDeDocumentacion}
+Comentario = {ComentarioTradicional} | {FinDeLineaComentario}  //| {ComentarioDeDocumentacion}
 
 /* Identificador */
 Letra = [A-Za-zÑñ_ÁÉÍÓÚáéíóúÜü]
@@ -56,7 +58,7 @@ NumeroEntero = {Numero}
 NumeroFlotante = {NumeroEntero} "." [0-9]+
 
 /* Booleano */
-Booleano = "true" | "false"
+//Booleano = "true" | "false"
 
 /* String */
 String = '"' {EntradaDeCaracter}* '"' | "'" {EntradaDeCaracter}* "'"
@@ -79,7 +81,7 @@ String = '"' {EntradaDeCaracter}* '"' | "'" {EntradaDeCaracter}* "'"
 "true" { return token(TokenType.TRUE, yytext(), yyline, yycolumn); }
 "false" { return token(TokenType.FALSE, yytext(), yyline, yycolumn); }
 "null" { return token(TokenType.NULL, yytext(), yyline, yycolumn); }
-
+"print" { return token(TokenType.PRINT, yytext(), yyline, yycolumn); }
 /* Extra: Palabras reservadas, para implementaciones estadisticas (Problema del proyecto)*/
 "mean" { return token(TokenType.MEAN, yytext(), yyline, yycolumn); }
 "max" { return token(TokenType.MAX, yytext(), yyline, yycolumn); }
@@ -135,7 +137,7 @@ String = '"' {EntradaDeCaracter}* '"' | "'" {EntradaDeCaracter}* "'"
 {NumeroEntero} { return token(TokenType.NUM_ENTERO, yytext(), yyline, yycolumn); }
 {NumeroFlotante} { return token(TokenType.NUM_FLOTANTE, yytext(), yyline, yycolumn); }
 {String} { return token(TokenType.STRING, yytext(), yyline, yycolumn); }
-{ComentarioDeDocumentacion} {return token(TokenType.COMENTARIO_DOC, yytext(), yyline, yycolumn); }
+//{ComentarioDeDocumentacion} {return token(TokenType.COMENTARIO_DOC, yytext(), yyline, yycolumn); }
 /* null, true, false definidos en palabras reservadas también cuentan como literales */
 
 /* Errores */

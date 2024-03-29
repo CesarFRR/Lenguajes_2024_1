@@ -1,20 +1,13 @@
-package model;
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Enum.java to edit this template
+ */
+package model.scanner;
 
-
-public class Token {
-    public TokenType type;
-    public String text;
-    public int line;
-    public int column;
-
-    public Token(TokenType type, String text, int line, int column) {
-        this.type = type;
-        this.text = text;
-        this.line = line;
-        this.column = column;
-    }
-}
-
+/**
+ *
+ * @author Cesar_R
+ */
 public enum TokenType {
     IF,
     ELSE,
@@ -32,11 +25,13 @@ public enum TokenType {
     TRUE,
     FALSE,
     NULL,
+    PRINT,
     MEAN,
     MAX,
     MIN,
     MEDIAN,
     MODE,
+    IDENTIFICADOR,
     OP_SUMA,
     OP_RESTA,
     OP_MULT,
@@ -65,8 +60,7 @@ public enum TokenType {
     NUM_ENTERO,
     NUM_FLOTANTE,
     E_NUM_START_ZERO,
-    E_ID_NO_,
     E_SIMB_NOT_FOUND,
-    COMENTARIO_DOC,
+    //COMENTARIO_DOC,
     EOF,
 }

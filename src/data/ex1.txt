@@ -1,1 +1,4 @@
 int variable_1 = 4;
+
+
+float variable_2 = 23.4;
