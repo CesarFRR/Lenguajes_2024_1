@@ -99,7 +99,7 @@ String = '"' {EntradaDeCaracter}* '"' | "'" {EntradaDeCaracter}* "'"
 "*" { return token(TokenType.OP_MULT, yytext(), yyline, yycolumn); }
 "/" { return token(TokenType.OP_DIV, yytext(), yyline, yycolumn); }
 "%" { return token(TokenType.OP_MOD, yytext(), yyline, yycolumn); }
-
+"^" { return token(TokenType.OP_POT, yytext(), yyline, yycolumn); }
 /* Operadores relacionales */
 "<" { return token(TokenType.OP_MENOR, yytext(), yyline, yycolumn); }
 "<=" { return token(TokenType.OP_MENOR_IGUAL, yytext(), yyline, yycolumn); }
@@ -143,7 +143,7 @@ String = '"' {EntradaDeCaracter}* '"' | "'" {EntradaDeCaracter}* "'"
 /* Errores */
 0 {Numero}+ { return token(TokenType.E_NUM_START_ZERO, yytext(), yyline, yycolumn); }
 . { return token(TokenType.E_SIMB_NOT_FOUND, yytext(), yyline, yycolumn); }
-
+{Numero}+{Identificador} { return token(TokenType.E_ID_START_DIGIT, yytext(), yyline, yycolumn); }
 
 /*Fin de archivo, importante a futuro para el analizador sintactico + semantica*/
 <<EOF>> { return new Token(TokenType.EOF, "", yyline, yycolumn); }

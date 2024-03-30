@@ -11,20 +11,68 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.Reader;
+import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
 import javax.swing.Timer;
-
+import javax.swing.table.AbstractTableModel;
+import model.scanner.LexerAnalyzer;
+import model.scanner.Token;
 /**
  *
  * @author yisus
  */
+
+ class TokenTableModel extends AbstractTableModel {
+    private final List<Token> tokens;
+    private final String[] columnNames = {"txt", "Token", "[Linea, columna]", "Lexema"};
+
+    public TokenTableModel(List<Token> tokens) {
+        this.tokens = tokens;
+    }
+
+    @Override
+    public int getRowCount() {
+        return tokens.size();
+    }
+
+    @Override
+    public int getColumnCount() {
+        return columnNames.length;
+    }
+
+    @Override
+    public Object getValueAt(int rowIndex, int columnIndex) {
+        Token token = tokens.get(rowIndex);
+        switch (columnIndex) {
+            case 0:
+                return token.getText();
+            case 1:
+                return token.getType();
+            case 2:
+                return "["+token.getLine()+", "+token.getColumn()+"]";
+            case 3:
+                return token.getLexemeType();
+            default:
+                return null;
+        }
+    }
+
+    @Override
+    public String getColumnName(int column) {
+        return columnNames[column];
+    }
+}
 public class Compilador extends javax.swing.JFrame {
 
-
+    public LexerAnalyzer lex;
     /**
      * Creates new form Compilador
      */
@@ -178,6 +226,11 @@ public class Compilador extends javax.swing.JFrame {
             }
         });
         jScrollPane3.setViewportView(tblTokens);
+        if (tblTokens.getColumnModel().getColumnCount() > 0) {
+            tblTokens.getColumnModel().getColumn(0).setHeaderValue("Componente léxico");
+            tblTokens.getColumnModel().getColumn(1).setHeaderValue("Lexema");
+            tblTokens.getColumnModel().getColumn(2).setHeaderValue("[Línea, Columna]");
+        }
 
         javax.swing.GroupLayout rootPanelLayout = new javax.swing.GroupLayout(rootPanel);
         rootPanel.setLayout(rootPanelLayout);
@@ -219,27 +272,39 @@ public class Compilador extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
-       
+        System.out.println("nuevo");
     }//GEN-LAST:event_btnNuevoActionPerformed
 
     private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
-      
+        System.out.println("abrir");
     }//GEN-LAST:event_btnAbrirActionPerformed
 
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-      
+        System.out.println("guardar");
     }//GEN-LAST:event_btnGuardarActionPerformed
 
     private void btnGuardarCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarCActionPerformed
-      
+        System.out.println("guardar como..");
     }//GEN-LAST:event_btnGuardarCActionPerformed
 
     private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompilarActionPerformed
-       
-    }//GEN-LAST:event_btnCompilarActionPerformed
+        System.out.println("compilar");
+        String txt = this.jtpCode.getText().trim();
+        Reader reader = new BufferedReader(new StringReader(txt));
 
+        this.lex = new LexerAnalyzer((BufferedReader) reader);
+        
+        System.out.println("resultado: ");
+        lex.printTokens();
+        //tblTokens
+        populateTable(this.tblTokens, lex.getTokens());
+    }//GEN-LAST:event_btnCompilarActionPerformed
+    public void populateTable(JTable table, List<Token> tokens) {
+        TokenTableModel model = new TokenTableModel(tokens);
+        table.setModel(model);
+    }
     private void btnEjecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEjecutarActionPerformed
-      
+        System.out.println("ejecutar");
     }//GEN-LAST:event_btnEjecutarActionPerformed
 
     private void executeCode(ArrayList<String> blocksOfCode, int repeats) {
@@ -268,9 +333,9 @@ public class Compilador extends javax.swing.JFrame {
 //                tokens.add(token);
 //            }
 //        } catch (FileNotFoundException ex) {
-//            System.out.println("El archivo no pudo ser encontrado... " + ex.getMessage());
+//            System.out.printlnln("El archivo no pudo ser encontrado... " + ex.getMessage());
 //        } catch (IOException ex) {
-//            System.out.println("Error al escribir en el archivo... " + ex.getMessage());
+//            System.out.printlnln("Error al escribir en el archivo... " + ex.getMessage());
 //        }
     }
 
@@ -445,7 +510,7 @@ public class Compilador extends javax.swing.JFrame {
 //        });
     }
 
-    private void printConsole() {
+    private void printlnConsole() {
 //        int sizeErrors = errors.size();
 //        if (sizeErrors > 0) {
 //            Functions.sortErrorsByLineAndColumn(errors);

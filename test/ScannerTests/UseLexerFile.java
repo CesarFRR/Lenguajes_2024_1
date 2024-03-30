@@ -31,7 +31,9 @@ public class UseLexerFile {
         
         try {
             runComand("cmd /c cd");
-            File codigo = new File("test/ScannerTests/test1.txt");
+            String ruta = "src/data/ex1.txt";
+            String ruta2 = "test/ScannerTests/test1.txt";
+            File codigo = new File(ruta);
             BufferedReader entrada = new BufferedReader(new InputStreamReader(new FileInputStream(codigo), "UTF8"));
             Lexer lexer = new Lexer(entrada);
             List<Token> tokens = new ArrayList<>();
