@@ -16,6 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javax.swing.table.AbstractTableModel;
 import model.scanner.Token;
 import model.scanner.TokenType;
 import view.UX;
@@ -124,5 +125,16 @@ public class utils {
         }
     }
     
-  
+    public static void generateFlexJavaFile(String FlexJavaTarget, boolean isWindows){
+        try {
+            System.out.println("Generando analizador léxico java, directorio actual: ");
+            String printDirComand = isWindows? "cmd /c cd" :"pwd";
+            runComand(printDirComand);
+            System.out.println("");
+            String jflexComand = "java -jar lib/jflex-full-1.9.1.jar -d "+FlexJavaTarget+" src/data/Lexer.flex";
+            runComand(jflexComand);
+        } catch (IOException ex) {
+            Logger.getLogger(utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+    }
 }

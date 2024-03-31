@@ -1,4 +1,5 @@
 package view;
+
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
@@ -25,54 +26,19 @@ import javax.swing.Timer;
 import javax.swing.table.AbstractTableModel;
 import model.scanner.LexerAnalyzer;
 import model.scanner.Token;
+import utils.TokenTableModel;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
+
 /**
  *
  * @author yisus
  */
-
- class TokenTableModel extends AbstractTableModel {
-    private final List<Token> tokens;
-    private final String[] columnNames = {"txt", "Token", "[Linea, columna]", "Lexema"};
-
-    public TokenTableModel(List<Token> tokens) {
-        this.tokens = tokens;
-    }
-
-    @Override
-    public int getRowCount() {
-        return tokens.size();
-    }
-
-    @Override
-    public int getColumnCount() {
-        return columnNames.length;
-    }
-
-    @Override
-    public Object getValueAt(int rowIndex, int columnIndex) {
-        Token token = tokens.get(rowIndex);
-        switch (columnIndex) {
-            case 0:
-                return token.getText();
-            case 1:
-                return token.getType();
-            case 2:
-                return "["+token.getLine()+", "+token.getColumn()+"]";
-            case 3:
-                return token.getLexemeType();
-            default:
-                return null;
-        }
-    }
-
-    @Override
-    public String getColumnName(int column) {
-        return columnNames[column];
-    }
-}
 public class Compilador extends javax.swing.JFrame {
 
+    public TokenTableModel tblTokensModel;
     public LexerAnalyzer lex;
+
     /**
      * Creates new form Compilador
      */
@@ -82,7 +48,27 @@ public class Compilador extends javax.swing.JFrame {
     }
 
     private void init() {
-      
+        this.tblTokensModel = new TokenTableModel();
+        this.tblTokens.setModel(this.tblTokensModel);
+        var tokenstable = this.tblTokens;
+        tokenstable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+
+            @Override
+            public void valueChanged(ListSelectionEvent e) {
+                if (!e.getValueIsAdjusting()) {
+                    return;
+                }
+
+                // Obtener las filas seleccionadas
+                int[] selectedRows = tokenstable.getSelectedRows();
+
+                // Activar algo
+                for (int i = 0; i < selectedRows.length; i++) {
+                    System.out.println("Fila seleccionada: " + selectedRows[i]);
+                }
+                System.out.println("\n");
+            }
+        });
     }
 
     @SuppressWarnings("unchecked")
@@ -226,11 +212,6 @@ public class Compilador extends javax.swing.JFrame {
             }
         });
         jScrollPane3.setViewportView(tblTokens);
-        if (tblTokens.getColumnModel().getColumnCount() > 0) {
-            tblTokens.getColumnModel().getColumn(0).setHeaderValue("Componente léxico");
-            tblTokens.getColumnModel().getColumn(1).setHeaderValue("Lexema");
-            tblTokens.getColumnModel().getColumn(2).setHeaderValue("[Línea, Columna]");
-        }
 
         javax.swing.GroupLayout rootPanelLayout = new javax.swing.GroupLayout(rootPanel);
         rootPanel.setLayout(rootPanelLayout);
@@ -293,7 +274,7 @@ public class Compilador extends javax.swing.JFrame {
         Reader reader = new BufferedReader(new StringReader(txt));
 
         this.lex = new LexerAnalyzer((BufferedReader) reader);
-        
+
         System.out.println("resultado: ");
         lex.printTokens();
         //tblTokens
@@ -308,11 +289,11 @@ public class Compilador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnEjecutarActionPerformed
 
     private void executeCode(ArrayList<String> blocksOfCode, int repeats) {
-        
+
     }
 
     private void compile() {
-    
+
     }
 
     private void lexicalAnalysis() {
@@ -501,8 +482,6 @@ public class Compilador extends javax.swing.JFrame {
 //        }
     }
 
-    
-
     private void fillTableTokens() {
 //        tokens.forEach(token -> {
 //            Object[] data = new Object[]{token.getLexicalComp(), token.getLexeme(), "[" + token.getLine() + ", " + token.getColumn() + "]"};
@@ -566,7 +545,7 @@ public class Compilador extends javax.swing.JFrame {
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(() -> {
-            
+
             new Compilador().setVisible(true);
         });
     }

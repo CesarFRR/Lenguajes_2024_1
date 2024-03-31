@@ -27,12 +27,7 @@ public class init {
         
         
 
-        System.out.println("Generando analizador léxico java, directorio actual: ");
-        String printDirComand = isWindows? "cmd /c cd" :"pwd";
-        runComand(printDirComand);
-        System.out.println("");
-        String jflexComand = "java -jar lib/jflex-full-1.9.1.jar -d "+FlexJavaTarget+" src/data/Lexer.flex";
-        runComand(jflexComand);
+        generateFlexJavaFile(FlexJavaTarget, isWindows);
 
     }
 

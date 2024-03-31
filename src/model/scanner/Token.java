@@ -1,4 +1,5 @@
 package model.scanner;
+import java.awt.Color;
 
 public class Token {
 
@@ -6,7 +7,7 @@ public class Token {
     public String text;
     public int line;
     public int column;
-    public Color color;
+    public ColorType color;
     public String lexemeType;
 
     public Token(TokenType type, String text, int line, int column) {
@@ -36,8 +37,11 @@ public class Token {
     /**
      * Devuelve en string el codigo de color del tipo de lexema, ej: "#E003F
      */
-    public String getColor() {
-        return color.getColorCode();
+    public ColorType getColor() {
+        return this.color;
+    }
+    public String getColorCode() {
+        return this.color.getColorCode();
     }
 
     public TokenType getTokenType() {
@@ -64,7 +68,7 @@ public class Token {
                 + ", line=" + this.line
                 + ", column=" + this.column
                 + ", lexemeType=" + this.lexemeType
-                + ", color=" + this.getColor() + '}';
+                + ", color=" + this.lexemeType+":"+this.getColorCode()+ "}";
     }
 
 }

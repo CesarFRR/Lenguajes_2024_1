@@ -39,9 +39,9 @@ EntradaDeCaracter = [^\r\n]
 EspacioEnBlanco = {TerminadorDeLinea} | [ \t\f]
 ComentarioTradicional = "#" {EntradaDeCaracter}*
 FinDeLineaComentario = "#" {EntradaDeCaracter}* {TerminadorDeLinea}?
-//ComentarioDeDocumentacion = "\"\"\""[^\"]*"\"\"\"" | "'''"[^\']*"'''"
+ComentarioDeDocumentacion = "\\\"\\\"\\\"(\\\\.|[^\\\\])*\\\"\\\"\\\"" | "\\'\\'\\'(\\\\.|[^\\\\])*\\'\\'\\'"
 
-Comentario = {ComentarioTradicional} | {FinDeLineaComentario}  //| {ComentarioDeDocumentacion}
+Comentario = {ComentarioTradicional} | {FinDeLineaComentario} | {ComentarioDeDocumentacion}
 
 /* Identificador */
 Letra = [A-Za-zÑñ_ÁÉÍÓÚáéíóúÜü]
@@ -61,8 +61,8 @@ NumeroFlotante = {NumeroEntero} "." [0-9]+
 //Booleano = "true" | "false"
 
 /* String */
-String = '"' {EntradaDeCaracter}* '"' | "'" {EntradaDeCaracter}* "'"
-
+String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
+ 
 %%
 /* Palabras reservadas */
 "if" { return token(TokenType.IF, yytext(), yyline, yycolumn); }
@@ -109,8 +109,8 @@ String = '"' {EntradaDeCaracter}* '"' | "'" {EntradaDeCaracter}* "'"
 "!=" { return token(TokenType.OP_DIFERENTE, yytext(), yyline, yycolumn); }
 
 /* Operadores lógicos */
-"&&" { return token(TokenType.OP_AND, yytext(), yyline, yycolumn); }
-"||" { return token(TokenType.OP_OR, yytext(), yyline, yycolumn); }
+"&" { return token(TokenType.OP_AND, yytext(), yyline, yycolumn); }
+"|" { return token(TokenType.OP_OR, yytext(), yyline, yycolumn); }
 "!" { return token(TokenType.OP_NOT, yytext(), yyline, yycolumn); }
 
 /* Operador de asignación */
@@ -134,10 +134,10 @@ String = '"' {EntradaDeCaracter}* '"' | "'" {EntradaDeCaracter}* "'"
 ":" { return token(TokenType.DOS_PUNTOS, yytext(), yyline, yycolumn); }
 
 /* Literales */
-{NumeroEntero} { return token(TokenType.NUM_ENTERO, yytext(), yyline, yycolumn); }
-{NumeroFlotante} { return token(TokenType.NUM_FLOTANTE, yytext(), yyline, yycolumn); }
-{String} { return token(TokenType.STRING, yytext(), yyline, yycolumn); }
-//{ComentarioDeDocumentacion} {return token(TokenType.COMENTARIO_DOC, yytext(), yyline, yycolumn); }
+{NumeroEntero} { return token(TokenType.LIT_INT, yytext(), yyline, yycolumn); }
+{NumeroFlotante} { return token(TokenType.LIT_FLOAT, yytext(), yyline, yycolumn); }
+{String} { return token(TokenType.LIT_STRING, yytext(), yyline, yycolumn); }
+
 /* null, true, false definidos en palabras reservadas también cuentan como literales */
 
 /* Errores */
