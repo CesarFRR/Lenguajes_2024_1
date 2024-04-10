@@ -62,7 +62,7 @@ NumeroFlotante = {NumeroEntero} "." [0-9]+
 
 /* String */
 String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
- 
+
 %%
 /* Palabras reservadas */
 "if" { return token(TokenType.IF, yytext(), yyline, yycolumn); }

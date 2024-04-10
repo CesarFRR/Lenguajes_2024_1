@@ -4,33 +4,31 @@
  */
 package app;
 
-import static utils.utils.*;
 import java.io.IOException;
-
+import utils.utils;
+import view.Compilador;
+import controller.MainController;
 /**
  *
  * @autor TriviGod
  */
 public class init {
+    
 
     public static void main(String[] args) throws IOException, InterruptedException {
         String FlexJavaTarget = "src/model/scanner/";
-        if (args.length > 0){
+
+        if (args.length > 0){ //for tests only
             FlexJavaTarget = args[0];
         }
-        String osName = System.getProperty("os.name").toLowerCase();
-        boolean isWindows = osName.contains("windows");
-        boolean isLinux = osName.contains("linux");
-         
-        adjustCurrentDir();
-        initUXLookAndFeel(isWindows, isLinux);
         
         
-
-        generateFlexJavaFile(FlexJavaTarget, isWindows);
+        
+        MainController ctr = new MainController(FlexJavaTarget);
+        ctr.start();
 
     }
-
+    
 }
 
 

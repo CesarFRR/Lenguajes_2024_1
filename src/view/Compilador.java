@@ -13,6 +13,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.Reader;
@@ -20,15 +21,31 @@ import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import javax.swing.AbstractAction;
+import javax.swing.Action;
+import javax.swing.ActionMap;
+import javax.swing.InputMap;
+import javax.swing.JComponent;
+import javax.swing.JFileChooser;
 import javax.swing.JOptionPane;
 import javax.swing.JTable;
+import javax.swing.JTextArea;
+import javax.swing.KeyStroke;
 import javax.swing.Timer;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
 import javax.swing.table.AbstractTableModel;
 import model.scanner.LexerAnalyzer;
 import model.scanner.Token;
 import utils.TokenTableModel;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
+import javax.swing.filechooser.FileNameExtensionFilter;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+import utils.utils;
+import model.scanner.Token;
 
 /**
  *
@@ -38,6 +55,8 @@ public class Compilador extends javax.swing.JFrame {
 
     public TokenTableModel tblTokensModel;
     public LexerAnalyzer lex;
+    public String currentFilePath = null;
+    public String currentFileName = null;
 
     /**
      * Creates new form Compilador
@@ -48,6 +67,10 @@ public class Compilador extends javax.swing.JFrame {
     }
 
     private void init() {
+        setTitle("Analizador Léxico");
+        utils.initUXLookAndFeel(utils.isWindows(), utils.islinux());
+        utils.enumerateJTextComponent(this.jtpCode, this.jspCode);
+        utils.autocompleteJTextComponent(this.jtpCode, this.jspCode);
         this.tblTokensModel = new TokenTableModel();
         this.tblTokens.setModel(this.tblTokensModel);
         var tokenstable = this.tblTokens;
@@ -69,6 +92,23 @@ public class Compilador extends javax.swing.JFrame {
                 System.out.println("\n");
             }
         });
+
+        setLocationRelativeTo(null);
+        // Crear una acción
+        Action action = new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                btnGuardarActionPerformed(e);
+            }
+        };
+
+        // Obtén el InputMap y el ActionMap del panel que contiene el botón
+        InputMap inputMap = this.buttonsFilePanel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+        ActionMap actionMap = this.buttonsFilePanel.getActionMap();
+
+        // Vincula la tecla Ctrl + S a la acción
+        inputMap.put(KeyStroke.getKeyStroke("ctrl S"), "save");
+        actionMap.put("save", action);
     }
 
     @SuppressWarnings("unchecked")
@@ -80,14 +120,13 @@ public class Compilador extends javax.swing.JFrame {
         btnAbrir = new javax.swing.JButton();
         btnNuevo = new javax.swing.JButton();
         btnGuardar = new javax.swing.JButton();
-        btnGuardarC = new javax.swing.JButton();
-        jScrollPane1 = new javax.swing.JScrollPane();
+        btnGuardarComo = new javax.swing.JButton();
+        jspCode = new javax.swing.JScrollPane();
         jtpCode = new javax.swing.JTextPane();
         panelButtonCompilerExecute = new javax.swing.JPanel();
         btnCompilar = new javax.swing.JButton();
-        btnEjecutar = new javax.swing.JButton();
         jScrollPane2 = new javax.swing.JScrollPane();
-        jtaOutputConsole = new javax.swing.JTextArea();
+        jtaConsole = new javax.swing.JTextArea();
         jScrollPane3 = new javax.swing.JScrollPane();
         tblTokens = new javax.swing.JTable();
 
@@ -115,10 +154,10 @@ public class Compilador extends javax.swing.JFrame {
             }
         });
 
-        btnGuardarC.setText("Guardar como");
-        btnGuardarC.addActionListener(new java.awt.event.ActionListener() {
+        btnGuardarComo.setText("Guardar como");
+        btnGuardarComo.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnGuardarCActionPerformed(evt);
+                btnGuardarComoActionPerformed(evt);
             }
         });
 
@@ -127,14 +166,13 @@ public class Compilador extends javax.swing.JFrame {
         buttonsFilePanelLayout.setHorizontalGroup(
             buttonsFilePanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(buttonsFilePanelLayout.createSequentialGroup()
-                .addContainerGap()
-                .addComponent(btnNuevo)
+                .addComponent(btnNuevo, javax.swing.GroupLayout.PREFERRED_SIZE, 78, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnAbrir)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(btnGuardar)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnGuardarC)
+                .addComponent(btnGuardarComo)
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         buttonsFilePanelLayout.setVerticalGroup(
@@ -145,23 +183,16 @@ public class Compilador extends javax.swing.JFrame {
                     .addComponent(btnAbrir)
                     .addComponent(btnNuevo)
                     .addComponent(btnGuardar)
-                    .addComponent(btnGuardarC))
+                    .addComponent(btnGuardarComo))
                 .addContainerGap(16, Short.MAX_VALUE))
         );
 
-        jScrollPane1.setViewportView(jtpCode);
+        jspCode.setViewportView(jtpCode);
 
-        btnCompilar.setText("Compilar");
+        btnCompilar.setText("Ejecutar análisis léxico");
         btnCompilar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
                 btnCompilarActionPerformed(evt);
-            }
-        });
-
-        btnEjecutar.setText("Ejecutar");
-        btnEjecutar.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                btnEjecutarActionPerformed(evt);
             }
         });
 
@@ -169,28 +200,23 @@ public class Compilador extends javax.swing.JFrame {
         panelButtonCompilerExecute.setLayout(panelButtonCompilerExecuteLayout);
         panelButtonCompilerExecuteLayout.setHorizontalGroup(
             panelButtonCompilerExecuteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(panelButtonCompilerExecuteLayout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnCompilar)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(btnEjecutar)
-                .addContainerGap())
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, panelButtonCompilerExecuteLayout.createSequentialGroup()
+                .addGap(0, 6, Short.MAX_VALUE)
+                .addComponent(btnCompilar, javax.swing.GroupLayout.PREFERRED_SIZE, 163, javax.swing.GroupLayout.PREFERRED_SIZE))
         );
         panelButtonCompilerExecuteLayout.setVerticalGroup(
             panelButtonCompilerExecuteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(panelButtonCompilerExecuteLayout.createSequentialGroup()
                 .addContainerGap()
-                .addGroup(panelButtonCompilerExecuteLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(btnCompilar)
-                    .addComponent(btnEjecutar))
+                .addComponent(btnCompilar)
                 .addContainerGap(7, Short.MAX_VALUE))
         );
 
-        jtaOutputConsole.setEditable(false);
-        jtaOutputConsole.setBackground(new java.awt.Color(255, 255, 255));
-        jtaOutputConsole.setColumns(20);
-        jtaOutputConsole.setRows(5);
-        jScrollPane2.setViewportView(jtaOutputConsole);
+        jtaConsole.setEditable(false);
+        jtaConsole.setBackground(new java.awt.Color(255, 255, 255));
+        jtaConsole.setColumns(20);
+        jtaConsole.setRows(5);
+        jScrollPane2.setViewportView(jtaConsole);
 
         tblTokens.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
@@ -225,9 +251,9 @@ public class Compilador extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                         .addComponent(panelButtonCompilerExecute, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 693, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 693, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jspCode, javax.swing.GroupLayout.PREFERRED_SIZE, 693, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(24, 24, 24)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 403, Short.MAX_VALUE)
+                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
                 .addGap(24, 24, 24))
         );
         rootPanelLayout.setVerticalGroup(
@@ -238,12 +264,12 @@ public class Compilador extends javax.swing.JFrame {
                     .addComponent(buttonsFilePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(panelButtonCompilerExecute, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(rootPanelLayout.createSequentialGroup()
-                        .addComponent(jScrollPane1)
-                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
-                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 334, Short.MAX_VALUE))
+                        .addComponent(jspCode)
+                        .addGap(18, 18, 18)
+                        .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 219, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 415, Short.MAX_VALUE))
                 .addGap(24, 24, 24))
         );
 
@@ -255,18 +281,64 @@ public class Compilador extends javax.swing.JFrame {
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
         System.out.println("nuevo");
     }//GEN-LAST:event_btnNuevoActionPerformed
-
     private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
-        System.out.println("abrir");
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files", "txt", "cz"));
+        int result = fileChooser.showOpenDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            this.currentFilePath = selectedFile.getAbsolutePath();
+            this.currentFileName = selectedFile.getName();
+            System.out.println("Selected file: " + selectedFile.getAbsolutePath());
+            try {
+                BufferedReader reader = new BufferedReader(new FileReader(selectedFile));
+                StringBuilder content = new StringBuilder();
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    content.append(line).append("\n");
+                }
+                reader.close();
+                this.jtpCode.setText(content.toString());
+                this.jtaConsole.setText("");
+                fillTable(this.tblTokens, new ArrayList<>());
+            } catch (IOException e) {
+                System.out.println("Error reading file: " + e.getMessage());
+            }
+        }
     }//GEN-LAST:event_btnAbrirActionPerformed
-
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
-        System.out.println("guardar");
+        if (this.currentFilePath == null || this.currentFileName == null) {
+            btnAbrirActionPerformed(evt);
+        } else {
+            System.out.println("guardar");
+            // Add code here to save changes to the current file
+            try {
+                FileWriter fileWriter = new FileWriter(this.currentFilePath);
+                fileWriter.write(this.jtpCode.getText());
+                fileWriter.close();
+            } catch (IOException ex) {
+                System.out.println("Error al guardar el archivo: " + ex.getMessage());
+            }
+        }
     }//GEN-LAST:event_btnGuardarActionPerformed
-
-    private void btnGuardarCActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarCActionPerformed
-        System.out.println("guardar como..");
-    }//GEN-LAST:event_btnGuardarCActionPerformed
+    private void btnGuardarComoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarComoActionPerformed
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileFilter(new FileNameExtensionFilter("Text Files", "txt", "cz"));
+        int result = fileChooser.showSaveDialog(this);
+        if (result == JFileChooser.APPROVE_OPTION) {
+            File selectedFile = fileChooser.getSelectedFile();
+            try {
+                FileWriter writer = new FileWriter(selectedFile);
+                writer.write(jtpCode.getText());
+                writer.close();
+                System.out.println("\nFile saved: " + selectedFile.getAbsolutePath());
+                this.currentFileName = selectedFile.getName();
+                this.currentFilePath = selectedFile.getAbsolutePath();
+            } catch (IOException e) {
+                System.out.println("\nError saving file: " + e.getMessage());
+            }
+        }
+    }//GEN-LAST:event_btnGuardarComoActionPerformed
 
     private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompilarActionPerformed
         System.out.println("compilar");
@@ -278,15 +350,28 @@ public class Compilador extends javax.swing.JFrame {
         System.out.println("resultado: ");
         lex.printTokens();
         //tblTokens
-        populateTable(this.tblTokens, lex.getTokens());
+        fillTable(this.tblTokens, lex.getTokens());
+
+        fillErrorPanel(this.jtaConsole, lex.getErrorTokens());
     }//GEN-LAST:event_btnCompilarActionPerformed
-    public void populateTable(JTable table, List<Token> tokens) {
+    public void fillTable(JTable table, List<Token> tokens) {
         TokenTableModel model = new TokenTableModel(tokens);
         table.setModel(model);
     }
-    private void btnEjecutarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnEjecutarActionPerformed
-        System.out.println("ejecutar");
-    }//GEN-LAST:event_btnEjecutarActionPerformed
+
+    public void fillErrorPanel(JTextArea txt, List<Token> tokens) {
+        String result = "";
+        if (tokens.isEmpty()) {
+            result = "No se encontraron errores en el análisis léxico.\n";
+        } else {
+            result = "Se encontraron errores en el análisis léxico.\n";
+
+            for (Token token : tokens) {
+                result += token.toString() + "\n";
+            }
+        }
+        txt.setText(result);
+    }
 
     private void executeCode(ArrayList<String> blocksOfCode, int repeats) {
 
@@ -526,7 +611,7 @@ public class Compilador extends javax.swing.JFrame {
          */
         try {
             for (javax.swing.UIManager.LookAndFeelInfo info : javax.swing.UIManager.getInstalledLookAndFeels()) {
-                if ("Nimbus".equals(info.getName())) {
+                if ("Windows".equals(info.getName())) {
                     javax.swing.UIManager.setLookAndFeel(info.getClassName());
                     break;
                 }
@@ -553,15 +638,14 @@ public class Compilador extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton btnAbrir;
     private javax.swing.JButton btnCompilar;
-    private javax.swing.JButton btnEjecutar;
     private javax.swing.JButton btnGuardar;
-    private javax.swing.JButton btnGuardarC;
+    private javax.swing.JButton btnGuardarComo;
     private javax.swing.JButton btnNuevo;
     private javax.swing.JPanel buttonsFilePanel;
-    private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
-    private javax.swing.JTextArea jtaOutputConsole;
+    private javax.swing.JScrollPane jspCode;
+    private javax.swing.JTextArea jtaConsole;
     private javax.swing.JTextPane jtpCode;
     private javax.swing.JPanel panelButtonCompilerExecute;
     private javax.swing.JPanel rootPanel;

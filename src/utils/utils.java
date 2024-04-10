@@ -4,29 +4,40 @@
  */
 package utils;
 
+import java.awt.Color;
+import java.awt.Font;
+
 import java.io.BufferedReader;
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.InvocationTargetException;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import javax.swing.table.AbstractTableModel;
-import model.scanner.Token;
-import model.scanner.TokenType;
-import view.UX;
+
+import view.Compilador;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import javax.swing.JFrame;
+import javax.swing.JTextPane;
+import javax.swing.JScrollPane;
+import javax.swing.event.DocumentEvent;
+import javax.swing.event.DocumentListener;
+import javax.swing.text.AbstractDocument;
+import javax.swing.text.BadLocationException;
+import javax.swing.text.Style;
+import javax.swing.text.StyleConstants;
+import javax.swing.text.StyledDocument;
+import utils.AutoCompleteDocumentFilter;
 
 /**
  *
  * @author Cesar_R
  */
 public class utils {
-    
+
     public static void runComand(String comand) throws IOException {
         String readyComand[] = comand.split(" ");
         File currentDir = new File(".");
@@ -59,6 +70,18 @@ public class utils {
                 System.out.println(line);
             }
         }
+    }
+
+    public static boolean isWindows() {
+        String osName = System.getProperty("os.name").toLowerCase();
+        return osName.contains("windows");
+
+    }
+
+    public static boolean islinux() {
+        String osName = System.getProperty("os.name").toLowerCase();
+        return osName.contains("linux");
+
     }
 
     public static void initUXLookAndFeel(boolean isWindows, boolean isLinux) {
@@ -99,18 +122,18 @@ public class utils {
             javax.swing.UIManager.setLookAndFeel(selectedStyle);
 
         } catch (ClassNotFoundException ex) {
-            java.util.logging.Logger.getLogger(UX.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Compilador.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (InstantiationException ex) {
-            java.util.logging.Logger.getLogger(UX.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Compilador.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (IllegalAccessException ex) {
-            java.util.logging.Logger.getLogger(UX.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Compilador.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         } catch (javax.swing.UnsupportedLookAndFeelException ex) {
-            java.util.logging.Logger.getLogger(UX.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
+            java.util.logging.Logger.getLogger(Compilador.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
 
     }
-    
-    public static void adjustCurrentDir() throws IOException, IOException{
+
+    public static void adjustCurrentDir() throws IOException, IOException {
         File currentDir = new File(".");
         File targetDir = new File("Lenguajes_2024_1");
 
@@ -124,17 +147,65 @@ public class utils {
             }
         }
     }
-    
-    public static void generateFlexJavaFile(String FlexJavaTarget, boolean isWindows){
+
+    public static void generateFlexJavaFile(String FlexJavaTarget, boolean isWindows) {
         try {
             System.out.println("Generando analizador léxico java, directorio actual: ");
-            String printDirComand = isWindows? "cmd /c cd" :"pwd";
+            String printDirComand = isWindows ? "cmd /c cd" : "pwd";
             runComand(printDirComand);
             System.out.println("");
-            String jflexComand = "java -jar lib/jflex-full-1.9.1.jar -d "+FlexJavaTarget+" src/data/Lexer.flex";
+            String jflexComand = "java -jar lib/jflex-full-1.9.1.jar -d " + FlexJavaTarget + " src/data/Lexer.flex";
             runComand(jflexComand);
         } catch (IOException ex) {
             Logger.getLogger(utils.class.getName()).log(Level.SEVERE, null, ex);
         }
+    }
+
+    public static boolean fileExists(String path, String fileName) {
+        return Files.exists(Paths.get(path, fileName));
+    }
+
+    public static void enumerateJTextComponent(JTextPane textPane, JScrollPane scrollPane) {
+        textPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
+        TextLineNumber tln = new TextLineNumber(textPane);
+        scrollPane.setRowHeaderView(tln);
+    }
+
+    public static void autocompleteJTextComponent(JTextPane textPane, JScrollPane scrollPane) {
+        ((AbstractDocument) textPane.getDocument()).setDocumentFilter(new AutoCompleteDocumentFilter(textPane));
+        // Obtén el StyledDocument del JTextPane
+
+    }
+
+    public static void highlightMain(JTextPane textPane, Style style) {
+        // Get the document and text
+        StyledDocument doc = textPane.getStyledDocument();
+        String text = textPane.getText();
+
+        // Remove any existing highlighting (optional, for efficiency)
+        int index = 0;
+        while ((index = text.indexOf("main", index)) != -1) {
+            // Apply the style to each occurrence of "main"
+            doc.setCharacterAttributes(index, 4, style, true);
+            index += 4; // Move the search index after "main"
+        }
+
+        // Re-add the DocumentListener for continuous highlighting
+        doc.addDocumentListener(new DocumentListener() {
+            @Override
+            public void insertUpdate(DocumentEvent e) {
+                highlightMain(textPane, style);
+            }
+
+            @Override
+            public void removeUpdate(DocumentEvent e) {
+                highlightMain(textPane, style);
+            }
+
+            @Override
+            public void changedUpdate(DocumentEvent e) {
+                // Not needed for this specific case
+            }
+        });
     }
 }

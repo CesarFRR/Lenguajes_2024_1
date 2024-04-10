@@ -14,3 +14,7 @@ float 0var0 = 023.4;
 string texto1 = "texto doble comilla " ;
 
 string texto2 = 'texto simple comilla ';
+
+string editado = "si";
+
+# editado 0
