@@ -20,7 +20,10 @@ import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.ActionMap;
@@ -43,7 +46,9 @@ import javax.swing.event.ListSelectionListener;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.Style;
 import javax.swing.text.StyleConstants;
+import javax.swing.text.StyleContext;
 import javax.swing.text.StyledDocument;
+import model.scanner.ColorType;
 import utils.utils;
 import model.scanner.Token;
 
@@ -57,6 +62,9 @@ public class Compilador extends javax.swing.JFrame {
     public LexerAnalyzer lex;
     public String currentFilePath = null;
     public String currentFileName = null;
+    private HashMap<String, Style> colorStyles;
+    private List Ctokens;
+    private boolean dark=false;
 
     /**
      * Creates new form Compilador
@@ -109,6 +117,7 @@ public class Compilador extends javax.swing.JFrame {
         // Vincula la tecla Ctrl + S a la acción
         inputMap.put(KeyStroke.getKeyStroke("ctrl S"), "save");
         actionMap.put("save", action);
+        createStyles();
     }
 
     @SuppressWarnings("unchecked")
@@ -129,6 +138,7 @@ public class Compilador extends javax.swing.JFrame {
         jtaConsole = new javax.swing.JTextArea();
         jScrollPane3 = new javax.swing.JScrollPane();
         tblTokens = new javax.swing.JTable();
+        bt_bg = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         getContentPane().setLayout(new javax.swing.BoxLayout(getContentPane(), javax.swing.BoxLayout.LINE_AXIS));
@@ -187,6 +197,17 @@ public class Compilador extends javax.swing.JFrame {
                 .addContainerGap(16, Short.MAX_VALUE))
         );
 
+        jtpCode.setFont(new java.awt.Font("Monospaced", 0, 14)); // NOI18N
+        jtpCode.setForeground(new java.awt.Color(0, 0, 0));
+        jtpCode.setToolTipText("");
+        jtpCode.setCaretColor(new java.awt.Color(0, 0, 0));
+        jtpCode.setCursor(new java.awt.Cursor(java.awt.Cursor.TEXT_CURSOR));
+        jtpCode.setDisabledTextColor(new java.awt.Color(0, 0, 153));
+        jtpCode.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                jtpCodeKeyReleased(evt);
+            }
+        });
         jspCode.setViewportView(jtpCode);
 
         btnCompilar.setText("Ejecutar análisis léxico");
@@ -239,6 +260,13 @@ public class Compilador extends javax.swing.JFrame {
         });
         jScrollPane3.setViewportView(tblTokens);
 
+        bt_bg.setText("*");
+        bt_bg.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                bt_bgActionPerformed(evt);
+            }
+        });
+
         javax.swing.GroupLayout rootPanelLayout = new javax.swing.GroupLayout(rootPanel);
         rootPanel.setLayout(rootPanelLayout);
         rootPanelLayout.setHorizontalGroup(
@@ -252,8 +280,13 @@ public class Compilador extends javax.swing.JFrame {
                         .addComponent(panelButtonCompilerExecute, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addComponent(jScrollPane2, javax.swing.GroupLayout.PREFERRED_SIZE, 693, javax.swing.GroupLayout.PREFERRED_SIZE)
                     .addComponent(jspCode, javax.swing.GroupLayout.PREFERRED_SIZE, 693, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addGap(24, 24, 24)
-                .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE)
+                .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addGroup(rootPanelLayout.createSequentialGroup()
+                        .addGap(24, 24, 24)
+                        .addComponent(jScrollPane3, javax.swing.GroupLayout.DEFAULT_SIZE, 372, Short.MAX_VALUE))
+                    .addGroup(rootPanelLayout.createSequentialGroup()
+                        .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addComponent(bt_bg)))
                 .addGap(24, 24, 24))
         );
         rootPanelLayout.setVerticalGroup(
@@ -262,7 +295,8 @@ public class Compilador extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(buttonsFilePanel, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(panelButtonCompilerExecute, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(panelButtonCompilerExecute, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(bt_bg))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addGroup(rootPanelLayout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
                     .addGroup(rootPanelLayout.createSequentialGroup()
@@ -280,6 +314,12 @@ public class Compilador extends javax.swing.JFrame {
 
     private void btnNuevoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnNuevoActionPerformed
         System.out.println("nuevo");
+        fillTable(this.tblTokens, new ArrayList());
+        this.jtaConsole.setText("");
+        this.jtpCode.setText("");
+        this.Ctokens.clear();
+
+
     }//GEN-LAST:event_btnNuevoActionPerformed
     private void btnAbrirActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnAbrirActionPerformed
         JFileChooser fileChooser = new JFileChooser();
@@ -305,6 +345,7 @@ public class Compilador extends javax.swing.JFrame {
                 System.out.println("Error reading file: " + e.getMessage());
             }
         }
+        this.updateColors();
     }//GEN-LAST:event_btnAbrirActionPerformed
     private void btnGuardarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnGuardarActionPerformed
         if (this.currentFilePath == null || this.currentFileName == null) {
@@ -354,6 +395,78 @@ public class Compilador extends javax.swing.JFrame {
 
         fillErrorPanel(this.jtaConsole, lex.getErrorTokens());
     }//GEN-LAST:event_btnCompilarActionPerformed
+
+    private void jtpCodeKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_jtpCodeKeyReleased
+        // Obtén el StyledDocument del JTextPane
+        this.updateColors();
+
+    }//GEN-LAST:event_jtpCodeKeyReleased
+    public void updateColors(){
+        
+        StyledDocument doc = (StyledDocument) this.jtpCode.getDocument();
+        // Restablece el estilo a su estado original
+        Style defaultStyle;
+        
+        defaultStyle =StyleContext.getDefaultStyleContext().getStyle(StyleContext.DEFAULT_STYLE);
+        
+        
+
+        // Modifica el nuevo estilo
+        if(this.dark) StyleConstants.setForeground(defaultStyle, Color.WHITE); // Cambia el color de la fuente a #808000
+        else StyleConstants.setForeground(defaultStyle, Color.BLACK); 
+        doc.setCharacterAttributes(0, doc.getLength(), defaultStyle, true);
+        String txt = this.jtpCode.getText().trim();
+        Reader reader = new BufferedReader(new StringReader(txt));
+        LexerAnalyzer minilex = new LexerAnalyzer((BufferedReader) reader);
+        this.Ctokens = (List<Token>) minilex.getTokens();
+        // Recorre los tokens
+        for (Iterator it = this.Ctokens.iterator(); it.hasNext();) {
+            Token token = (Token) it.next();
+            // Encuentra el estilo correspondiente al tipo de lexema del token
+            Style style = colorStyles.get(token.getLexemeType());
+            
+            // Si encontramos un estilo, lo aplicamos al texto del token
+            // Si encontramos un estilo, lo aplicamos a todas las ocurrencias del texto del token
+            if (style != null) {
+                String text = token.getText();
+                if (token.getLexemeType().equals("ERR")) {
+                    StyleConstants.setItalic(style, true);
+                    StyleConstants.setUnderline(style, true);
+                    StyleConstants.setForeground(style, Color.RED);
+
+                }
+                try {
+                    String docText = doc.getText(0, doc.getLength());
+                    int start = 0;
+                    while ((start = docText.indexOf(text, start)) != -1) {
+                        doc.setCharacterAttributes(start, text.length(), style, false);
+                        start += text.length();
+                    }
+                } catch (Exception ex) {
+                    ex.printStackTrace();
+                }
+            }
+        }
+    }
+    private void bt_bgActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_bt_bgActionPerformed
+        // TODO add your handling code here:
+        this.dark = !this.dark;
+        if(this.dark ==true){
+            Color myColor = new Color(40, 44, 52);
+            this.jtpCode.setBackground(myColor);
+            this.jtpCode.setCaretColor(Color.WHITE);
+            this.jspCode.setForeground(Color.WHITE);
+        }else{
+            this.jtpCode.setBackground(Color.WHITE);
+            this.jtpCode.setCaretColor(Color.BLACK);
+            this.jspCode.setForeground(Color.WHITE);
+        }
+        this.createStyles();
+        this.updateColors();
+        
+        
+    }//GEN-LAST:event_bt_bgActionPerformed
+
     public void fillTable(JTable table, List<Token> tokens) {
         TokenTableModel model = new TokenTableModel(tokens);
         table.setModel(model);
@@ -600,6 +713,23 @@ public class Compilador extends javax.swing.JFrame {
 //        codeHasBeenCompiled = false;
     }
 
+    public void createStyles() {
+        // Obtén el StyledDocument del JTextPane
+        StyledDocument doc = (StyledDocument) this.jtpCode.getDocument();
+        this.colorStyles = new HashMap<>();
+        // Recorre los valores del enum
+        for (ColorType colorType : ColorType.values()) {
+            // Crea un estilo para cada valor
+            Style style = doc.addStyle(colorType.name(), null);
+            if(this.dark ==true){
+            StyleConstants.setForeground(style, colorType.getdColor());
+            }else{
+            StyleConstants.setForeground(style, colorType.getColor());
+            }
+            this.colorStyles.put(colorType.name(), style);
+        }
+    }
+
     /**
      * @param args the command line arguments
      */
@@ -636,6 +766,7 @@ public class Compilador extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
+    private javax.swing.JButton bt_bg;
     private javax.swing.JButton btnAbrir;
     private javax.swing.JButton btnCompilar;
     private javax.swing.JButton btnGuardar;
