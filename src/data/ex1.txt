@@ -18,5 +18,3 @@ string texto2 = 'texto simple comilla ';
 string editado = "si";
 
 # editado 0
-
-#EDITADO EN VIDEO, PRESIONAR CTR + S O CON GUARDAR  SE PRESIONO CTR + S

@@ -168,7 +168,7 @@ public class utils {
     }
 
     public static void enumerateJTextComponent(JTextPane textPane, JScrollPane scrollPane) {
-        textPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 14));
+        textPane.setFont(new Font(Font.MONOSPACED, Font.PLAIN, 12));
         TextLineNumber tln = new TextLineNumber(textPane);
         scrollPane.setRowHeaderView(tln);
     }
