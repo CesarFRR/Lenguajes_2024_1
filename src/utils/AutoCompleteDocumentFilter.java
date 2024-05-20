@@ -73,6 +73,16 @@ public class AutoCompleteDocumentFilter extends DocumentFilter {
                     return;
                 }
 
+            } else {
+                //textComponent.setCaretPosition(offset + 1);
+                int tabs = addTabs(textComponent.getDocument(), offset);
+                if (tabs>0){
+                
+                text = "\n" + "    ".repeat(tabs) ;
+                super.replace(fb, offset, length, text, attrs);
+                textComponent.setCaretPosition(offset + 4 * tabs + 1);
+                return;
+                }
             }
         }
         super.replace(fb, offset, length, text, attrs);

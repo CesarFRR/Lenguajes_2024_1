@@ -21,7 +21,7 @@ public class init {
         if (args.length > 0){ //for tests only
             FlexJavaTarget = args[0];
         }
-        
+       
         
         
         MainController ctr = new MainController(FlexJavaTarget);
