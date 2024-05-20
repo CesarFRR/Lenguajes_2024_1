@@ -93,7 +93,7 @@ public class utils {
         for (javax.swing.UIManager.LookAndFeelInfo name : lista) {
             osList.add(name.getClassName());
         }
-        //System.out.print("lista: " + osList);
+        System.out.print("lista: " + osList);
         String selectedStyle = null;
 
         if (isWindows) {
@@ -107,13 +107,15 @@ public class utils {
             for (String name : osList) {
                 if (name.toLowerCase().contains("gtk") || name.toLowerCase().contains("motif")) {
                     selectedStyle = name;
+                    System.out.print("\nseleccionado LINUX: " + selectedStyle);
                     break;
                 }
             }
+            
         }
 
         if (selectedStyle == null) {
-            selectedStyle = "Nimbus";
+            selectedStyle = osList.getFirst();
         }
         try {
 
