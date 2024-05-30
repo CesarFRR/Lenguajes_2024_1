@@ -1,20 +1,14 @@
-package model.scanner;
-import java.awt.Color;
+package model.scanner.Token;
+import java_cup.runtime.Symbol;
 
-public class Token {
-
+public class Token extends Symbol {
     public TokenType type;
-    public String text;
-    public int line;
-    public int column;
     public ColorType color;
     public String lexemeType;
 
     public Token(TokenType type, String text, int line, int column) {
+        super(type.ordinal(), line, column, text);
         this.type = type;
-        this.text = text;
-        this.line = line;
-        this.column = column;
         this.color = this.type.getColor();
         this.lexemeType = this.color.name();
     }
@@ -49,24 +43,24 @@ public class Token {
     }
 
     public String getText() {
-        return text;
+        return this.value.toString();
     }
 
     public int getLine() {
-        return line;
+        return this.left;
     }
 
     public int getColumn() {
-        return column;
+        return this.right;
     }
 
     @Override
     public String toString() {
         return "Token{"
                 + "type=" + this.type
-                + ", text=" + this.text
-                + ", line=" + this.line
-                + ", column=" + this.column
+                + ", text=" + this.getText()
+                + ", line=" + this.getLine()
+                + ", column=" + this.getColumn()
                 + ", lexemeType=" + this.lexemeType
                 + ", color=" + this.lexemeType+":"+this.getColorCode()+ "}";
     }

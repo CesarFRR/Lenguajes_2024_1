@@ -4,13 +4,11 @@
  */
 package model.scanner;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.io.Reader;
+import java_cup.runtime.Symbol;
+import model.scanner.Token.Token;
+import model.scanner.Token.TokenType;
+
+import java.io.*;
 import java.util.ArrayList;
 import java.util.List;
 import static utils.utils.*;
@@ -19,15 +17,47 @@ public class LexerAnalyzer {
 
     private List<Token> tokens;
     private List<Token> etokens;
-
+    private Lexer lexer;
     public LexerAnalyzer(String filePath) {
-        this.tokens = this.getTokensFromFile(filePath);
-        this.etokens = this.getErrorTokens(tokens);
+        this.runLexer(filePath);
+        this.tokens = this.lexer.getTokens();
+        this.etokens = this.lexer.getErrors();
     }
     // Nuevo constructor que acepta un BufferedReader
     public LexerAnalyzer(BufferedReader reader) {
-        this.tokens = this.getTokensFromFile(reader);
-        this.etokens = this.getErrorTokens(tokens);
+        this.runLexer(reader);
+        this.tokens = this.lexer.getTokens();
+        this.etokens = this.lexer.getErrors();
+    }
+
+    private Lexer runLexer(Object filename) {
+        if (filename instanceof BufferedReader) {
+            this.lexer = new Lexer((BufferedReader) filename);
+        }else{
+            File codigo = new File((String) filename);
+            BufferedReader entrada = null;
+            try {
+                entrada = new BufferedReader(new InputStreamReader(new FileInputStream(codigo), "UTF8"));
+            } catch (UnsupportedEncodingException e) {
+                throw new RuntimeException(e);
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            this.lexer = new Lexer(entrada);
+        }
+
+        while (true) {
+            Symbol token = null;
+            try {
+                token = lexer.next_token();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+            if (token == null || token.sym == TokenType.EOF.ordinal()) {
+                break;
+            }
+        }
+        return this.lexer;
     }
 
     public static void main(String[] args) throws IOException {
@@ -46,45 +76,11 @@ public class LexerAnalyzer {
     }
 
     public List<Token> getTokensFromFile(String filename) {
-        List<Token> tokens = new ArrayList<>();
-        try {
-            File codigo = new File(filename);
-            BufferedReader entrada = new BufferedReader(new InputStreamReader(new FileInputStream(codigo), "UTF8"));
-            Lexer lexer = new Lexer(entrada);
-            while (true) {
-                Token token = lexer.yylex();
-                if (token == null || token.type == TokenType.EOF) {
-                    break;
-                }
-                tokens.add(token);
-                //System.out.println(token);
-            }
-        } catch (FileNotFoundException ex) {
-            System.out.println("El archivo no pudo ser encontrado... " + ex.getMessage());
-        } catch (IOException ex) {
-            System.out.println("Error al leer el archivo... " + ex.getMessage());
-        }
-        return tokens;
+        return this.runLexer(filename).getTokens();
     }
     
     public List<Token> getTokensFromFile(BufferedReader entrada) {
-        List<Token> tokens = new ArrayList<>();
-        try {
-            Lexer lexer = new Lexer(entrada);
-            while (true) {
-                Token token = lexer.yylex();
-                if (token == null || token.type == TokenType.EOF) {
-                    break;
-                }
-                tokens.add(token);
-                //System.out.println(token);
-            }
-        } catch (FileNotFoundException ex) {
-            System.out.println("El archivo no pudo ser encontrado... " + ex.getMessage());
-        } catch (IOException ex) {
-            System.out.println("Error al leer el archivo... " + ex.getMessage());
-        }
-        return tokens;
+        return this.runLexer(entrada).getTokens();
     }
 
     public List<Token> getTokens() {

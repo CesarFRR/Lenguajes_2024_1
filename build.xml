@@ -8,7 +8,7 @@
 <!-- You can turn off the Compile on Save (or Deploy on Save) setting -->
 <!-- in the project's Project Properties dialog box.-->
 <project name="Lenguajes_2024_1" default="default" basedir=".">
-    <!-- Este proyecto corresponde al Taller_1 de la asignatura Lenguajes de programación 2024-1 -->
+    <!-- Este proyecto corresponde al T1 de la asignatura Lenguajes de programación 2024-1 -->
     <description>Builds, tests, and runs the project Lenguajes_2024_1.</description>
     <import file="nbproject/build-impl.xml"/>
     <!--
@@ -17,8 +17,8 @@
     used for execution of your tasks. These targets are usually executed 
     before and after some main targets. They are: 
 
-      -pre-init:                 called before initialization of project properties
-      -post-init:                called after initialization of project properties
+      -pre-App:                 called before initialization of project properties
+      -post-App:                called after initialization of project properties
       -pre-compile:              called before javac compilation
       -post-compile:             called after javac compilation
       -pre-compile-single:       called before javac compilation of single file
@@ -48,10 +48,10 @@
     Another way to customize the build is by overriding existing main targets.
     The targets of interest are: 
 
-      -init-macrodef-javac:     defines macro for javac compilation
-      -init-macrodef-junit:     defines macro for junit execution
-      -init-macrodef-debug:     defines macro for class debugging
-      -init-macrodef-java:      defines macro for class execution
+      -App-macrodef-javac:     defines macro for javac compilation
+      -App-macrodef-junit:     defines macro for junit execution
+      -App-macrodef-debug:     defines macro for class debugging
+      -App-macrodef-java:      defines macro for class execution
       -do-jar:                  JAR building
       run:                      execution of project 
       -javadoc-build:           Javadoc generation

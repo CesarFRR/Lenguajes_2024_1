@@ -163,6 +163,24 @@ public class utils {
         }
     }
 
+    public static void generateCupJavaFile(String CupJavaTarget, boolean isWindows) {
+        try {
+            System.out.println("Generando analizador sintáctico java, directorio actual: ");
+            String printDirComand = isWindows ? "cmd /c cd" : "pwd";
+            runComand(printDirComand);
+            System.out.println("");
+            String cupComand = "java -jar lib/java-cup-11b.jar -parser Parser -destdir " + CupJavaTarget + " src/data/Parser.cup";
+            runComand(cupComand);
+        } catch (IOException ex) {
+            Logger.getLogger(utils.class.getName()).log(Level.SEVERE, null, ex);
+        }
+        catch (Exception ex) {
+            Logger.getLogger(utils.class.getName()).log(Level.SEVERE, null, ex);
+            System.out.println("ERROR:\n" + ex);
+        }
+    }
+
+
     public static boolean fileExists(String path, String fileName) {
         return Files.exists(Paths.get(path, fileName));
     }

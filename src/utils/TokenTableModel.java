@@ -7,7 +7,7 @@ package utils;
 import java.util.ArrayList;
 import java.util.List;
 import javax.swing.table.AbstractTableModel;
-import model.scanner.Token;
+import model.scanner.Token.Token;
 
 /**
  *

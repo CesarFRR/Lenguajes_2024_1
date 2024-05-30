@@ -1,0 +1,28 @@
+
+# Ejemplo sencillo: Calculadora simple
+
+fn suma(a :int, b :int) {
+  return a + b;
+}
+
+fn resta(a: int, b: int) {
+  return a - b;
+}
+
+fn main() {
+  # Declaración de variables
+  x int = 5;
+  y int = 10;
+
+  # Llamada a funciones
+  resultado_suma = suma(x, y);
+  resultado_resta = resta(y, x);
+
+  # Impresión de resultados
+  print("La suma es: ");
+  print(resultado_suma);
+  print("La resta es: ");
+  print(resultado_resta);
+
+  return 0;
+}
