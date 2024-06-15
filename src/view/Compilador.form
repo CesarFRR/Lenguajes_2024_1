@@ -243,7 +243,7 @@
                       <EmptySpace type="unrelated" max="-2" attributes="0"/>
                       <Component id="btnSemantico" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
-                      <Component id="jButton3" max="32767" attributes="0"/>
+                      <Component id="btnCompilar" max="32767" attributes="0"/>
                       <EmptySpace max="-2" attributes="0"/>
                       <Component id="bt_bg" min="-2" max="-2" attributes="0"/>
                       <EmptySpace min="-2" max="-2" attributes="0"/>
@@ -257,7 +257,7 @@
                           <Component id="btnLexico" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnSintactico" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="btnSemantico" alignment="3" min="-2" max="-2" attributes="0"/>
-                          <Component id="jButton3" alignment="3" min="-2" max="-2" attributes="0"/>
+                          <Component id="btnCompilar" alignment="3" min="-2" max="-2" attributes="0"/>
                           <Component id="bt_bg" alignment="3" min="-2" max="-2" attributes="0"/>
                       </Group>
                       <EmptySpace min="0" pref="0" max="32767" attributes="0"/>
@@ -292,7 +292,7 @@
                 <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnSemanticoActionPerformed"/>
               </Events>
             </Component>
-            <Component class="javax.swing.JButton" name="jButton3">
+            <Component class="javax.swing.JButton" name="btnCompilar">
               <Properties>
                 <Property name="font" type="java.awt.Font" editor="org.netbeans.beaninfo.editors.FontEditor">
                   <Font name="Roboto" size="14" style="3"/>
@@ -300,7 +300,7 @@
                 <Property name="text" type="java.lang.String" value="Compilar"/>
               </Properties>
               <Events>
-                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="jButton3ActionPerformed"/>
+                <EventHandler event="actionPerformed" listener="java.awt.event.ActionListener" parameters="java.awt.event.ActionEvent" handler="btnCompilarActionPerformed"/>
               </Events>
             </Component>
             <Component class="javax.swing.JButton" name="bt_bg">

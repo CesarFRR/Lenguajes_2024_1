@@ -127,7 +127,7 @@ public class Compilador extends javax.swing.JFrame {
         btnLexico = new javax.swing.JButton();
         btnSintactico = new javax.swing.JButton();
         btnSemantico = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
+        btnCompilar = new javax.swing.JButton();
         bt_bg = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
@@ -251,11 +251,11 @@ public class Compilador extends javax.swing.JFrame {
             }
         });
 
-        jButton3.setFont(new java.awt.Font("Roboto", 3, 14)); // NOI18N
-        jButton3.setText("Compilar");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        btnCompilar.setFont(new java.awt.Font("Roboto", 3, 14)); // NOI18N
+        btnCompilar.setText("Compilar");
+        btnCompilar.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
+                btnCompilarActionPerformed(evt);
             }
         });
 
@@ -277,7 +277,7 @@ public class Compilador extends javax.swing.JFrame {
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.UNRELATED)
                 .addComponent(btnSemantico, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnCompilar, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(bt_bg)
                 .addContainerGap())
@@ -289,7 +289,7 @@ public class Compilador extends javax.swing.JFrame {
                     .addComponent(btnLexico)
                     .addComponent(btnSintactico)
                     .addComponent(btnSemantico)
-                    .addComponent(jButton3)
+                    .addComponent(btnCompilar)
                     .addComponent(bt_bg))
                 .addGap(0, 0, Short.MAX_VALUE))
         );
@@ -531,9 +531,12 @@ public class Compilador extends javax.swing.JFrame {
         this.jtaConsole.setText(this.jtaConsole.getText() + text + "\n");
     }
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompilarActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jButton3ActionPerformed
+        this.btnLexicoActionPerformed(evt);
+        this.btnSintacticoActionPerformed(evt);
+        this.btnSemanticoActionPerformed(evt);
+    }//GEN-LAST:event_btnCompilarActionPerformed
 
     public void fillTable(JTable table, List<Token> tokens) {
         TokenTableModel model = new TokenTableModel(tokens);
@@ -846,6 +849,7 @@ public class Compilador extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton bt_bg;
     private javax.swing.JButton btnAbrir;
+    private javax.swing.JButton btnCompilar;
     private javax.swing.JButton btnGuardar;
     private javax.swing.JButton btnGuardarComo;
     private javax.swing.JButton btnLexico;
@@ -853,7 +857,6 @@ public class Compilador extends javax.swing.JFrame {
     private javax.swing.JButton btnSemantico;
     private javax.swing.JButton btnSintactico;
     private javax.swing.JPanel buttonsFilePanel;
-    private javax.swing.JButton jButton3;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane2;
     private javax.swing.JScrollPane jScrollPane3;
