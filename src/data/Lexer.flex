@@ -1,62 +1,54 @@
-import java_cup.runtime.*;
-import model.scanner.Token.ColorType;
-import model.scanner.Token.Token;
-import model.scanner.Token.TokenType;
+package model.scanner;
 import java.util.List;
 import java.util.ArrayList;
-import java.util.Objects;
+
+import java_cup.runtime.*;
+
+import model.scanner.Token.*;
 
 %%
+%public
 %class Lexer
 %cup
 %line
 %column
 %{
-                StringBuffer string = new StringBuffer();
-                List<Token> tokens = new ArrayList<>();
-                List<Token> errors = new ArrayList<>();
+    StringBuffer string = new StringBuffer();
+    List<Token> tokens = new ArrayList<>();
+    List<Token> errors = new ArrayList<>();
+    List<String> errorsMessages = new ArrayList<>();
 
-                public  List<Token> getTokens(){return tokens;}
+    public  List<Token> getTokens(){return tokens;}
 
-                public  List<Token> getErrors(){return errors;}
+    public  List<Token> getErrors(){return errors;}
 
-                private Symbol symbol(int type){
-                    return new Symbol(type, yyline, yycolumn);
-                }
-                private Symbol symbol(int type, Object value){
-                    return new Symbol(type, yyline, yycolumn, value);
-                }
+    public  List<String> getErrorsMessages(){return errorsMessages;}
 
-                private Symbol symbol(int type, Object value, int line, int column){
-                    return new Symbol(type, line, column, value);
-                }
-
-                private Symbol symbol(TokenType type,  Object value, int line, int column){
-                  tokens.add(new Token(type, value.toString(), line, column));
-                  Symbol s= null;
-                  System.out.print("Token: "+type+" "+value+" +  id: " + type.ordinal());
-                  if (Objects.equals(tokens.getLast().getLexemeType(), ColorType.ERR.name())){
-                    errors.add(new Token(type, value.toString(), line, column));
-                    s = new Symbol(TokenType.ERROR.ordinal(), line, column, value);
-
-                  }else s = new Symbol(type.ordinal(), line, column, value);
-                  System.out.print(" == " + s.toString());
-                  System.out.println(" ");
-                  return s;
-                }
+    private boolean isToken(Object type){
+        return type instanceof TokenType;
+    }
+    private Symbol symbol(Object type){
+        return symbol(type, "");
+    }
+    private Symbol symbol(Object type, Object value){
+        int n = (isToken(type)) ? ((TokenType)type).ordinal() : (int) type;
+        Token token = new Token(TokenType.getType(n), value.toString(), yyline, yycolumn);
+        tokens.add(token);
+        if (n == 1) errors.add(token);
+        return new Symbol(n, value);
+    }
 %}
 /*Fin de archivo, importante a futuro para el analizador sintactico + semantica*/
 %eofval{
-return symbol(TokenType.EOF.ordinal());
+return symbol(TokenType.EOF);
 %eofval}
-%eofclose
 /* Variables básicas de comentarios y espacios */
 TerminadorDeLinea = \r|\n|\r\n
 EntradaDeCaracter = [^\r\n]
 EspacioEnBlanco = {TerminadorDeLinea} | [ \t\f]
 ComentarioTradicional = "#" {EntradaDeCaracter}*
 FinDeLineaComentario = "#" {EntradaDeCaracter}* {TerminadorDeLinea}?
-ComentarioDeDocumentacion = "\\\"\\\"\\\"(\\\\.|[^\\\\])*\\\"\\\"\\\"" | "\\'\\'\\'(\\\\.|[^\\\\])*\\'\\'\\'"
+ComentarioDeDocumentacion = "\\\"\\\"\\\"(\\\\.|[^\\\\])*\\\"\\\"\\\"" | "\\'\\'\\'(\\\\.|[^\\\\])*\\'\\'\\'" | "//" [^\n]*
 
 Comentario = {ComentarioTradicional} | {FinDeLineaComentario} | {ComentarioDeDocumentacion}
 
@@ -79,98 +71,102 @@ NumeroFlotante = {NumeroEntero} "." [0-9]+
 
 /* String */
 String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
-
+//Char = \'(\\.|[^\'\\])\'
 %%
 /* Palabras reservadas */
-"if" { return symbol(TokenType.IF, yytext(), yyline, yycolumn); }
-"else" { return symbol(TokenType.ELSE, yytext(), yyline, yycolumn); }
-"elif" { return symbol(TokenType.ELIF, yytext(), yyline, yycolumn); }
-"while" { return symbol(TokenType.WHILE, yytext(), yyline, yycolumn); }
-"for" { return symbol(TokenType.FOR, yytext(), yyline, yycolumn); }
-"return" { return symbol(TokenType.RETURN, yytext(), yyline, yycolumn); }
-"break" { return symbol(TokenType.BREAK, yytext(), yyline, yycolumn); }
-"continue" { return symbol(TokenType.CONTINUE, yytext(), yyline, yycolumn); }
-"fn" { return symbol(TokenType.FN, yytext(), yyline, yycolumn); }
-"bool" { return symbol(TokenType.BOOL, yytext(), yyline, yycolumn); }
-"int" { return symbol(TokenType.INT, yytext(), yyline, yycolumn); }
-"float" { return symbol(TokenType.FLOAT, yytext(), yyline, yycolumn); }
-"string" { return symbol(TokenType.STRING, yytext(), yyline, yycolumn); }
-"true" { return symbol(TokenType.TRUE, yytext(), yyline, yycolumn); }
-"false" { return symbol(TokenType.FALSE, yytext(), yyline, yycolumn); }
-"null" { return symbol(TokenType.NULL, yytext(), yyline, yycolumn); }
-"print" { return symbol(TokenType.PRINT, yytext(), yyline, yycolumn); }
+"if" { return symbol(TokenType.IF, yytext()); }
+"else" { return symbol(TokenType.ELSE, yytext()); }
+"elif" { return symbol(TokenType.ELIF, yytext()); }
+"while" { return symbol(TokenType.WHILE, yytext()); }
+"for" { return symbol(TokenType.FOR, yytext()); }
+"return" { return symbol(TokenType.RETURN, yytext()); }
+"break" { return symbol(TokenType.BREAK, yytext()); }
+"continue" { return symbol(TokenType.CONTINUE, yytext()); }
+"fn" { return symbol(TokenType.FN, yytext()); }
+"boolean" { return symbol(TokenType.BOOLEAN, yytext()); }
+"int" { return symbol(TokenType.INT, yytext()); }
+"float" { return symbol(TokenType.FLOAT, yytext()); }
+"string" { return symbol(TokenType.STRING, yytext()); }
+"true" { return symbol(TokenType.TRUE, yytext()); }
+"false" { return symbol(TokenType.FALSE, yytext()); }
+"null" { return symbol(TokenType.NULL, yytext()); }
+"print" { return symbol(TokenType.PRINT, yytext()); }
 /* Extra: Palabras reservadas, para implementaciones estadisticas (Problema del proyecto)*/
-"mean" { return symbol(TokenType.MEAN, yytext(), yyline, yycolumn); }
-"max" { return symbol(TokenType.MAX, yytext(), yyline, yycolumn); }
-"min" { return symbol(TokenType.MIN, yytext(), yyline, yycolumn); }
-"median" { return symbol(TokenType.MEDIAN, yytext(), yyline, yycolumn); }
-"mode" { return symbol(TokenType.MODE, yytext(), yyline, yycolumn); }
-
+"mean" { return symbol(TokenType.MEAN, yytext()); }
+"max" { return symbol(TokenType.MAX, yytext()); }
+"min" { return symbol(TokenType.MIN, yytext()); }
+"median" { return symbol(TokenType.MEDIAN, yytext()); }
+"mode" { return symbol(TokenType.MODE, yytext()); }
+"getChar" { return symbol(TokenType.GETCHAR, yytext()); } //getChar("hola", 2) -> un string de el elemento en la posición 2
+"getCharFromAscii" { return symbol(TokenType.GETCHARFROMASCII, yytext()); } //getCharFromAscii(97) -> un string de el elemento dado su codigo ascii
+"getAscii" { return symbol(TokenType.GETASCII, yytext()); } // getAscii("a") -> un int de el codigo ascii de el caracter
+"len" { return symbol(TokenType.LEN, yytext()); } // len("hola") -> un int de la longitud de un string o un arreglo
 
 /* Identificador */
-{Identificador} { return symbol(TokenType.IDENTIFICADOR, yytext(), yyline, yycolumn); }
+{Identificador} { return symbol(TokenType.IDENTIFICADOR, yytext()); }
 
 /* Operadores aritméticos */
-"+" { return symbol(TokenType.OP_SUMA, yytext(), yyline, yycolumn); }
-"-" { return symbol(TokenType.OP_RESTA, yytext(), yyline, yycolumn); }
-"*" { return symbol(TokenType.OP_MULT, yytext(), yyline, yycolumn); }
-"/" { return symbol(TokenType.OP_DIV, yytext(), yyline, yycolumn); }
-"%" { return symbol(TokenType.OP_MOD, yytext(), yyline, yycolumn); }
-"^" { return symbol(TokenType.OP_POT, yytext(), yyline, yycolumn); }
+"+" { return symbol(TokenType.OP_SUMA, yytext()); }
+"-" { return symbol(TokenType.OP_RESTA, yytext()); }
+"*" { return symbol(TokenType.OP_MULT, yytext()); }
+"/" { return symbol(TokenType.OP_DIV, yytext()); }
+"%" { return symbol(TokenType.OP_MOD, yytext()); }
+"^" { return symbol(TokenType.OP_POT, yytext()); }
 /* Operadores relacionales */
-"<" { return symbol(TokenType.OP_MENOR, yytext(), yyline, yycolumn); }
-"<=" { return symbol(TokenType.OP_MENOR_IGUAL, yytext(), yyline, yycolumn); }
-">" { return symbol(TokenType.OP_MAYOR, yytext(), yyline, yycolumn); }
-">=" { return symbol(TokenType.OP_MAYOR_IGUAL, yytext(), yyline, yycolumn); }
-"==" { return symbol(TokenType.OP_IGUAL, yytext(), yyline, yycolumn); }
-"!=" { return symbol(TokenType.OP_DIFERENTE, yytext(), yyline, yycolumn); }
+"<" { return symbol(TokenType.OP_MENOR, yytext()); }
+"<=" { return symbol(TokenType.OP_MENOR_IGUAL, yytext()); }
+">" { return symbol(TokenType.OP_MAYOR, yytext()); }
+">=" { return symbol(TokenType.OP_MAYOR_IGUAL, yytext()); }
+"==" { return symbol(TokenType.OP_IGUAL, yytext()); }
+"!=" { return symbol(TokenType.OP_DIFERENTE, yytext()); }
 
 /* Operadores lógicos */
-"&" { return symbol(TokenType.OP_AND, yytext(), yyline, yycolumn); }
-"|" { return symbol(TokenType.OP_OR, yytext(), yyline, yycolumn); }
-"!" { return symbol(TokenType.OP_NOT, yytext(), yyline, yycolumn); }
+"&&" { return symbol(TokenType.OP_AND, yytext()); }
+"||" { return symbol(TokenType.OP_OR, yytext()); }
+"!" { return symbol(TokenType.OP_NOT, yytext()); }
 
 /* Operador de asignación */
-"=" { return symbol(TokenType.OP_ASIGN, yytext(), yyline, yycolumn); }
+"=" { return symbol(TokenType.OP_ASIGN, yytext()); }
 
 /* Operadores de agrupación o delimitadores parentesis */
-"(" { return symbol(TokenType.L_PARENTESIS, yytext(), yyline, yycolumn); }
-")" { return symbol(TokenType.R_PARENTESIS, yytext(), yyline, yycolumn); }
-"{" { return symbol(TokenType.L_LLAVE, yytext(), yyline, yycolumn); }
-"}" { return symbol(TokenType.R_LLAVE, yytext(), yyline, yycolumn); }
-"[" { return symbol(TokenType.L_CORCHETE, yytext(), yyline, yycolumn); }
-"]" { return symbol(TokenType.R_CORCHETE, yytext(), yyline, yycolumn); }
+"(" { return symbol(TokenType.L_PARENTESIS, yytext()); }
+")" { return symbol(TokenType.R_PARENTESIS, yytext()); }
+"{" { return symbol(TokenType.L_LLAVE, yytext()); }
+"}" { return symbol(TokenType.R_LLAVE, yytext()); }
+"[" { return symbol(TokenType.L_CORCHETE, yytext()); }
+"]" { return symbol(TokenType.R_CORCHETE, yytext()); }
 
 /* Comentarios o espacios en blanco */
 {Comentario}|{EspacioEnBlanco} { /*Ignorar*/ }
 /*Nota: todo elemento dentro de comillas dobles o simples se toma como comentario y se ignora */
 /* Signos de puntuación */
-"," { return symbol(TokenType.COMA, yytext(), yyline, yycolumn); }
-";" { return symbol(TokenType.PUNTO_COMA, yytext(), yyline, yycolumn); }
-"." { return symbol(TokenType.PUNTO, yytext(), yyline, yycolumn); }
-":" { return symbol(TokenType.DOS_PUNTOS, yytext(), yyline, yycolumn); }
+"," { return symbol(TokenType.COMA, yytext()); }
+";" { return symbol(TokenType.PUNTO_COMA, yytext()); }
+"." { return symbol(TokenType.PUNTO, yytext()); }
+":" { return symbol(TokenType.DOS_PUNTOS, yytext()); }
 
 /* Literales */
-{NumeroEntero} { return symbol(TokenType.LIT_INT, Integer.valueOf(yytext()), yyline, yycolumn); }
-{NumeroFlotante} { return symbol(TokenType.LIT_FLOAT, yytext(), yyline, yycolumn); }
-{String} { return symbol(TokenType.LIT_STRING, yytext(), yyline, yycolumn); }
+{NumeroEntero} { return symbol(TokenType.LIT_INT, Integer.valueOf(yytext())); }
+{NumeroFlotante} { return symbol(TokenType.LIT_FLOAT, Float.valueOf( yytext()) ); }
+{String} { return symbol(TokenType.LIT_STRING, yytext()); }
 
 /* null, true, false definidos en palabras reservadas también cuentan como literales */
 
 /* Errores */
 0 {Numero}+ {
-          System.err.println("Error léxico en la línea " + yyline + ", columna " + yycolumn + ": los números no deben empezar por 0 (cero): " + yytext());
-          return symbol(TokenType.ERROR, yytext(), yyline, yycolumn);
+          String error = "Error léxico en la línea " + yyline + ", columna " + yycolumn + ": los números no deben empezar por 0 (cero): " + yytext();
+          this.errorsMessages.add(error);
+          return symbol(TokenType.ERROR, yytext());
       }
 
 . {
-          System.err.println("Error léxico en la línea " + yyline + ", columna " + yycolumn + ": Carácter inesperado: " + yytext());
-          return symbol(TokenType.ERROR, yytext(), yyline, yycolumn);
+          String error = "Error léxico en la línea " + yyline + ", columna " + yycolumn + ": Carácter inesperado: " + yytext();
+          this.errorsMessages.add(error);
+          return symbol(TokenType.ERROR, yytext());
       }
 
 {Numero}+{Identificador} {
-          System.err.println("Error léxico en la línea " + yyline + ", columna " + yycolumn + ": Los identificadores (nombres de variables y funciones) no deben empezar por números: " + yytext());
-          return symbol(TokenType.ERROR, yytext(), yyline, yycolumn);
+          String error = "Error léxico en la línea " + yyline + ", columna " + yycolumn + ": Los identificadores (nombres de variables y funciones) no deben empezar por números: " + yytext();
+          this.errorsMessages.add(error);
+          return symbol(TokenType.ERROR, yytext());
       }
-
-

@@ -1,20 +1,63 @@
+package model.parser;
 import java_cup.runtime.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import model.parser.AST.*;
+
 class Parser;
+
+// codigo de java que puede ingresar el usuario para errores y esas cosas:
+
+parser code {:
+    TableAST tabla = new TableAST();
+
+
+    public void report_error(String message, Object info) {
+        StringBuffer m = new StringBuffer("Error");
+
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            if (s.left >= 0) {
+                /* Add to the end of the StringBuffer error message
+                   the line number of the error in the input. */
+                m.append(" in line "+(s.left+1));
+                /* Check if the column number in the input is greater
+                   or equal to zero. */
+                if (s.right >= 0)
+                    /* Add to the end of the StringBuffer error message
+                       the column number of the error in the input. */
+                    m.append(", column "+(s.right+1));
+            }
+        }
+
+
+        m.append(" : "+message);
+        System.err.println(m);
+    }
+
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        //System.exit(1);
+    }
+:};
 
 /* Palabras reservadas */
 terminal IF, ELSE, ELIF, WHILE, FOR, RETURN, BREAK, CONTINUE, FN;
 
 /* Tipos de datos */
-terminal BOOL, INT, FLOAT, STRING;
+terminal BOOLEAN, INT, FLOAT, STRING, CHAR;
 
 /* Literales */
 terminal TRUE, FALSE, NULL;
 terminal Integer LIT_INT;
 terminal Float LIT_FLOAT;
 terminal String LIT_STRING;
+terminal Character LIT_CHAR;
 
 /* Funciones */
-terminal PRINT, MEAN, MAX, MIN, MEDIAN, MODE;
+terminal PRINT, MEAN, MAX, MIN, MEDIAN, MODE, GETCHAR, GETCHARFROMASCII, GETASCII, LEN;
 
 /* Identificador */
 terminal IDENTIFICADOR;
@@ -36,16 +79,165 @@ terminal L_PARENTESIS, R_PARENTESIS, L_LLAVE, R_LLAVE, L_CORCHETE, R_CORCHETE, C
 
 
 /* Non terminals */
-non terminal Integer Expr;
+non terminal Node Program;
+non terminal NodeTree Sent_list, Dims;
+non terminal Node Sent, Dim, Sent_if, Sent_for, Sent_while, Expr_bool, Asign, Expr_Aritm, Fn_call, Fn_print, Fn_mean, Fn_len, Fn_getChar, Fn_getCharFromAscii, Fn_getAscii;
+non terminal Node Declar, Array_declar, Array_assign, Type, Number;
+non terminal Node Expr;
+non terminal Node Literal, LiteralBool, LiteralNumber, LiteralString;
 
-/* Precedence and associativity */
-precedence left OP_SUMA;
-precedence left OP_MULT;
+
+
+/* Precedence and associativity*/
+precedence left OP_SUMA, OP_RESTA;
+precedence left OP_MULT, OP_DIV, OP_MOD, OP_POT;
+precedence left OP_AND;
+precedence left OP_OR;
+precedence left OP_NOT;
+precedence left OP_IGUAL, OP_DIFERENTE;
+precedence left OP_MENOR, OP_MENOR_IGUAL, OP_MAYOR, OP_MAYOR_IGUAL;
+
+
+
 
 /* Start symbol */
-start with Expr;
+start with Program;
 
 /* Production rules */
-Expr ::=  Expr:e1 OP_SUMA Expr:e2 {: RESULT = e1 + e2; :}
-        | Expr:e1 OP_MULT Expr:e2 {: RESULT = e1 * e2; :}
-        | LIT_INT:n {: RESULT = n; :};
+Program ::= Sent_list:s_list {: RESULT = new NodeTree(null, s_list); :};
+
+Sent_list ::=   Sent:s Sent_list:s_list {: RESULT = new NodeTree(s, s_list); :}
+                    | Sent:s {: RESULT = new NodeTree(s, null); :};
+
+
+Literal ::= LiteralBool:lit_bool {:RESULT = lit_bool;:}
+            | LiteralNumber:lit_number {:RESULT = lit_number;:}
+            | LiteralString:lit_string {:RESULT = lit_string;:};
+
+LiteralBool ::= TRUE {:RESULT = new NodeLeaf(ParserSym.TRUE, true);:}
+            | FALSE {:RESULT = new NodeLeaf(ParserSym.FALSE, false);:};
+
+LiteralNumber ::= LIT_INT:n {:RESULT = new NodeLeaf(ParserSym.LIT_INT, n);:}
+            | LIT_FLOAT:n {:RESULT = new NodeLeaf(ParserSym.LIT_FLOAT, Float.valueOf(n));:}
+            | OP_RESTA LIT_INT:n {: // para los numeros negativos
+             NodeLeaf cero = new NodeLeaf(ParserSym.LIT_INT, 0);
+             NodeLeaf menos = new NodeLeaf(ParserSym.OP_RESTA, "-");
+             Object n1 = n;
+
+             NodeLeaf number = new NodeLeaf(0, n1);
+
+             RESULT = new NodeExprArithmetic(0, cero, menos, number);:}
+             | OP_RESTA LIT_FLOAT:n {: // para los numeros negativos
+                          NodeLeaf cero = new NodeLeaf(ParserSym.LIT_FLOAT, 0);
+                          NodeLeaf menos = new NodeLeaf(ParserSym.OP_RESTA, "-");
+                          Object n1 = n;
+
+                          NodeLeaf number = new NodeLeaf(0, n1);
+
+                          RESULT = new NodeExprArithmetic(0, cero, menos, number);:};
+
+LiteralString ::= LIT_STRING:n {:RESULT = new NodeLeaf(ParserSym.LIT_STRING, n);:};
+
+Expr_Aritm ::= Expr:e1 OP_SUMA Expr:e2 {: RESULT = new NodeExprArithmetic(-1, e1, new NodeLeaf(ParserSym.OP_SUMA, "+"), e2); :}
+                 | Expr:e1 OP_RESTA Expr:e2 {: RESULT = new NodeExprArithmetic(-1, e1, new NodeLeaf(ParserSym.OP_RESTA, "-"), e2); :}
+                 | Expr:e1 OP_MULT Expr:e2 {: RESULT = new NodeExprArithmetic(-1, e1, new NodeLeaf(ParserSym.OP_MULT, "*"), e2); :}
+                 | Expr:e1 OP_DIV Expr:e2 {: RESULT = new NodeExprArithmetic(-1, e1, new NodeLeaf(ParserSym.OP_DIV, "/"), e2); :}
+                 | Expr:e1 OP_MOD Expr:e2 {: RESULT = new NodeExprArithmetic(-1, e1, new NodeLeaf(ParserSym.OP_MOD, "%"), e2); :}
+                 | Expr:e1 OP_POT Expr:e2 {: RESULT = new NodeExprArithmetic(-1, e1, new NodeLeaf(ParserSym.OP_POT, "^"), e2); :};
+
+Expr ::= Expr_Aritm:e1 {:RESULT = e1;:}
+         | IDENTIFICADOR:i  Dims:dims {:RESULT = new NodeArrVarId(ParserSym.IDENTIFICADOR, (String) i, (NodeTree)dims);:}
+         | IDENTIFICADOR:i {:RESULT = new NodeVarId((String) i);:}
+         | Expr_bool:e1 {:RESULT = e1;:}
+         | Fn_call:fn{:RESULT = fn;:}
+         | Literal:l{:RESULT = l;:}
+         | OP_RESTA L_PARENTESIS Expr:e R_PARENTESIS {: RESULT = new NodeExprArithmetic(-1, new NodeLeaf(ParserSym.LIT_INT, 0), new NodeLeaf(ParserSym.OP_RESTA, "-"), e); :}
+         | L_PARENTESIS Expr:e R_PARENTESIS {: RESULT = e; :};
+
+
+Sent ::= Declar:declar PUNTO_COMA{: RESULT = declar;:}
+            | Asign:asign PUNTO_COMA{: RESULT = asign;:}
+            | Array_declar:array_declar PUNTO_COMA{: RESULT = array_declar;:}
+            | Array_assign:array_assign PUNTO_COMA{: RESULT = array_assign;:}
+            | Sent_if:sent_if {: RESULT = sent_if;:}
+            | Sent_for:sent_for {: RESULT = sent_for;:}
+            | Sent_while:sent_while {: RESULT = sent_while;:}
+            | RETURN Expr:e PUNTO_COMA {: RESULT = new NodeStructReturn(e);:}
+            | BREAK PUNTO_COMA {: RESULT = new NodeStructBreak();:}
+            | CONTINUE PUNTO_COMA {: RESULT = new NodeStructContinue();:}
+            //| Fn_call:fn_call PUNTO_COMA{: RESULT = fn_call;:}
+            | Expr:e PUNTO_COMA{: RESULT = e;:};
+
+Declar ::= Type:t IDENTIFICADOR:i  {:
+//System.out.println("Declaracion sin asignacion, si PASA POR AQUI: \n\n " + t + "\n\n" + i + "\n\n");
+
+RESULT = new NodeVar(ParserSym.IDENTIFICADOR,t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), null);:}
+            | Type:t IDENTIFICADOR:i OP_ASIGN Expr:ex{:
+            //System.out.println("Declaracion con asignacion, si PASA POR AQUI: \n\n " + t + "\n\n" + i + "\n\n" + ex + "\n\n");
+            NodeLeaf n = new NodeLeaf(-1, ex);
+            RESULT = new NodeVar(ParserSym.IDENTIFICADOR,t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), n);:};
+
+Dim ::= L_CORCHETE Expr:e R_CORCHETE {:
+    RESULT = new NodeLeaf(-1, e);:};
+
+Dims ::= Dim:d Dims:ds {: RESULT = new NodeTree(d, ds); :}
+            | Dim:d {: RESULT = new NodeTree(d, null); :};
+
+Array_declar ::= Type:t IDENTIFICADOR:i  Dims:dims  {:
+    RESULT = new NodeArrVar(ParserSym.IDENTIFICADOR,t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), (NodeTree)dims, null);:};
+Array_assign ::= IDENTIFICADOR:i  Dims:dims  OP_ASIGN Expr:value {:
+    RESULT = new NodeArrVar(ParserSym.IDENTIFICADOR, null, new NodeLeaf(ParserSym.IDENTIFICADOR, i), (NodeTree)dims, (Node)value); :};
+
+Type ::= INT:i {:RESULT = new NodeLeaf(ParserSym.INT, i);:}
+            | FLOAT:f {:RESULT = new NodeLeaf(ParserSym.FLOAT, f);:}
+            | STRING:s {:RESULT = new NodeLeaf(ParserSym.STRING, s);:}
+            | CHAR:ch {:RESULT = new NodeLeaf(ParserSym.CHAR, ch);:}
+            | BOOLEAN:b {:RESULT = new NodeLeaf(ParserSym.BOOLEAN, b);:};
+
+Asign ::= IDENTIFICADOR:i OP_ASIGN Expr:e  {: RESULT = new NodeVar(ParserSym.IDENTIFICADOR, null, new NodeLeaf(ParserSym.IDENTIFICADOR, i), (Node)e);:};
+
+Sent_if ::= IF L_PARENTESIS Expr:e R_PARENTESIS L_LLAVE Sent_list:s_list1 R_LLAVE {: RESULT = new NodeStructIfElse(-1, (Node)e, (NodeTree)s_list1, null);:}
+                    | IF L_PARENTESIS Expr:e R_PARENTESIS L_LLAVE Sent_list:s_list1 R_LLAVE ELSE L_LLAVE Sent_list:s_list2 R_LLAVE {: RESULT = new NodeStructIfElse(-1, (Node)e, (NodeTree)s_list1, (NodeTree)s_list2);:};
+
+Sent_for ::= FOR L_PARENTESIS Declar:decl PUNTO_COMA Expr:bool PUNTO_COMA Asign:update R_PARENTESIS L_LLAVE Sent_list:s_list R_LLAVE {:
+    //System.out.println("AQUI VAMOS POR EL FOR");
+    RESULT = new NodeStructFor(ParserSym.FOR, (Node)decl, (Node)bool, (Node)update, (NodeTree)s_list);:};
+
+Sent_while ::= WHILE L_PARENTESIS Expr_bool:e R_PARENTESIS L_LLAVE Sent_list:s_list R_LLAVE {:
+    RESULT = new NodeStructWhile(ParserSym.WHILE, (Node)e, (NodeTree)s_list);:};
+
+Fn_print ::= PRINT L_PARENTESIS Expr:e1 R_PARENTESIS {:
+                 RESULT = new NodeFnPrint(e1);:};
+//            | PRINT L_PARENTESIS IDENTIFICADOR:i R_PARENTESIS PUNTO_COMA{:
+//                        NodeVar var = new NodeVar(-1, null, new NodeLeaf(ParserSym.IDENTIFICADOR, i), null);
+//                        RESULT = new NodeFnPrint(var);:};
+Fn_len ::= LEN L_PARENTESIS Expr:e1 R_PARENTESIS {:
+                        RESULT = new NodeFnLen(e1);:};
+
+Fn_getAscii ::= GETASCII L_PARENTESIS Expr:e1 R_PARENTESIS {:
+                        RESULT = new NodeFnGetAscii(e1);:};
+
+Fn_getChar ::= GETCHAR L_PARENTESIS Expr:e1 COMA Expr:e2 R_PARENTESIS {:
+                        RESULT = new NodeFnGetChar(e1, e2);:};
+
+Fn_getCharFromAscii ::= GETCHARFROMASCII L_PARENTESIS Expr:e1 R_PARENTESIS {:
+                        RESULT = new NodeFnGetCharFromAscii(e1);:};
+
+Fn_mean ::= MEAN L_PARENTESIS Expr:e1 R_PARENTESIS {:
+                        Object data = e1;
+                        System.out.println("Esta es la funcion de mean, proximamente: " + data.toString());:};
+Fn_call ::= Fn_print:fn_print {: RESULT = fn_print;:}
+            | Fn_len:fn_len {: RESULT = fn_len;:}
+            | Fn_getAscii:fn_getAscii {: RESULT = fn_getAscii;:}
+            | Fn_getChar:fn_getChar {: RESULT = fn_getChar;:}
+            | Fn_getCharFromAscii:fn_getCharFromAscii {: RESULT = fn_getCharFromAscii;:}
+                    | Fn_mean:fn_mean {: RESULT = fn_mean;:};
+
+Expr_bool ::= Expr:e1 OP_MENOR Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_MENOR, "<"), e2); :}
+               | Expr:e1 OP_MAYOR Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_MAYOR, ">"), e2); :}
+               | Expr:e1 OP_IGUAL Expr:e2 {:
+            //   System.out.println("Expr_bool: OP_IGUAL: \n\n" + e1 + "\n\n" + e2 + "\n\n");
+               RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_IGUAL, "=="), e2); :}
+               | Expr:e1 OP_AND Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_AND, "&&"), e2); :}
+               | Expr:e1 OP_OR Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_OR, "||"), e2); :}
+               | OP_NOT Expr:e {: RESULT = new NodeExprBoolean(-1, e, new NodeLeaf(ParserSym.OP_NOT, "!"), null); :};

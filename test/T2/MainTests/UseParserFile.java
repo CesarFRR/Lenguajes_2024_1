@@ -16,12 +16,15 @@ public class UseParserFile {
         if (StringInput) {
             try {
                 try {
-                    String expresion = "5+2";
-                    Lexer lexer = new Lexer(new StringReader(expresion));
-                    Parser p = new Parser(lexer);
+                    String expresion = """
 
-                    Object result =  p.parse();
-                    System.out.println("Parsing completed. Result: " + ((Symbol) result).value+ "  --> "+result);
+                            3*4;
+                           """;
+//                    Lexer lexer = new Lexer(new StringReader(expresion));
+//                    Parser p = new Parser(lexer);
+//
+//                    Object result =  p.parse();
+//                    System.out.println("Parsing completed. Result: " + ((Symbol) result).value+ "  --> "+result);
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -35,10 +38,10 @@ public class UseParserFile {
                 Scanner scanner = new Scanner(System.in);
                 System.out.print("Digite su operacion: ");
                 String input = scanner.nextLine();
-                Lexer lexer = new Lexer(new StringReader(input));
-                Parser p = new Parser(lexer);
-                Object result =  p.parse();
-                System.out.println("Parsing completed. Result: " + ((Symbol) result).value+ "  --> "+result);
+//                Lexer lexer = new Lexer(new StringReader(input));
+//                Parser p = new Parser(lexer);
+//                Object result =  p.parse();
+//                System.out.println("Parsing completed. Result: " + ((Symbol) result).value+ "  --> "+result);
             } catch (Exception ex) {
                 System.out.println("Error during parsing... " + ex.getMessage());
             }

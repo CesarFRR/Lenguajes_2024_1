@@ -38,10 +38,8 @@ public class LexerAnalyzer {
             BufferedReader entrada = null;
             try {
                 entrada = new BufferedReader(new InputStreamReader(new FileInputStream(codigo), "UTF8"));
-            } catch (UnsupportedEncodingException e) {
-                throw new RuntimeException(e);
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
+            } catch (UnsupportedEncodingException | FileNotFoundException e) {
+                e.printStackTrace();
             }
             this.lexer = new Lexer(entrada);
         }
@@ -51,7 +49,7 @@ public class LexerAnalyzer {
             try {
                 token = lexer.next_token();
             } catch (IOException e) {
-                throw new RuntimeException(e);
+                e.printStackTrace();
             }
             if (token == null || token.sym == TokenType.EOF.ordinal()) {
                 break;
@@ -114,6 +112,15 @@ public class LexerAnalyzer {
             System.out.println(t);
         }
     }
-    
-    
+
+
+    public void printErrorMessages() {
+        for (String t : this.lexer.getErrorsMessages()) {
+            System.out.println(t);
+        }
+    }
+
+    public Lexer getLexer() {
+        return this.lexer;
+    }
 }

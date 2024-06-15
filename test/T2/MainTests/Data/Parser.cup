@@ -1,18 +1,60 @@
 package T2.MainTests.Data;
 import java_cup.runtime.*;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.ArrayList;
+import java.util.List;
+import T2.MainTests.AST.*;
+
 class Parser;
+
+// codigo de java que puede ingresar el usuario para errores y esas cosas:
+
+parser code {:
+    T2.MainTests.AST.TableAST tabla = new T2.MainTests.AST.TableAST();
+
+
+    public void report_error(String message, Object info) {
+        StringBuffer m = new StringBuffer("Error");
+
+        if (info instanceof java_cup.runtime.Symbol) {
+            java_cup.runtime.Symbol s = ((java_cup.runtime.Symbol) info);
+            if (s.left >= 0) {
+                /* Add to the end of the StringBuffer error message
+                   the line number of the error in the input. */
+                m.append(" in line "+(s.left+1));
+                /* Check if the column number in the input is greater
+                   or equal to zero. */
+                if (s.right >= 0)
+                    /* Add to the end of the StringBuffer error message
+                       the column number of the error in the input. */
+                    m.append(", column "+(s.right+1));
+            }
+        }
+
+
+        m.append(" : "+message);
+        System.err.println(m);
+    }
+
+    public void report_fatal_error(String message, Object info) {
+        report_error(message, info);
+        //System.exit(1);
+    }
+:};
 
 /* Palabras reservadas */
 terminal IF, ELSE, ELIF, WHILE, FOR, RETURN, BREAK, CONTINUE, FN;
 
 /* Tipos de datos */
-terminal BOOL, INT, FLOAT, STRING;
+terminal BOOL, INT, FLOAT, STRING, CHAR;
 
 /* Literales */
 terminal TRUE, FALSE, NULL;
 terminal Integer LIT_INT;
 terminal Float LIT_FLOAT;
 terminal String LIT_STRING;
+terminal Character LIT_CHAR;
 
 /* Funciones */
 terminal PRINT, MEAN, MAX, MIN, MEDIAN, MODE;
@@ -37,16 +79,170 @@ terminal L_PARENTESIS, R_PARENTESIS, L_LLAVE, R_LLAVE, L_CORCHETE, R_CORCHETE, C
 
 
 /* Non terminals */
-non terminal Integer Expr;
-
+non terminal Program, Sent_list, Sent, Sent_if, Expr_bool, Asign, OpAritm, Operando, Fn_call, Fn_print, Fn_mean;
+non terminal Operador;
+non terminal Object Expr;
 /* Precedence and associativity */
-precedence left OP_SUMA;
-precedence left OP_MULT;
+precedence left OP_SUMA, OP_RESTA;
+precedence left OP_MULT, OP_DIV;
+
+
+/* precedence for boolean operators */
+precedence left OP_AND;
+precedence left OP_OR;
+precedence left OP_NOT;
+precedence left OP_IGUAL, OP_DIFERENTE;
+precedence left OP_MENOR, OP_MENOR_IGUAL, OP_MAYOR, OP_MAYOR_IGUAL;
 
 /* Start symbol */
-start with Expr;
+start with Program;
 
 /* Production rules */
-Expr ::=  Expr:e1 OP_SUMA Expr:e2 {: RESULT = e1 + e2; :}
-        | Expr:e1 OP_MULT Expr:e2 {: RESULT = e1 * e2; :}
-        | LIT_INT:n {: RESULT = n; :};
+Program ::= Sent_list;
+
+Sent_list ::= Sent_list Sent
+                    | Sent;
+
+Operador ::= OP_SUMA:t {:RESULT = "+";:}
+                    | OP_RESTA:t {:RESULT = "-";:}
+                    | OP_MULT:t {:RESULT = "*";:}
+                    | OP_DIV:t {:RESULT = "/";:}
+                    | OP_MOD:t {:RESULT = "%";:}
+                    | OP_POT:t {:RESULT = "^";:};
+
+Operando ::= LIT_INT:n {:RESULT = (int) n;:}
+                    | LIT_FLOAT:n {:RESULT = (float) n;:}
+                    | LIT_STRING:n {:RESULT = (String) n;:}
+                    | L_PARENTESIS Expr R_PARENTESIS;
+
+OpAritm ::= Operando:e1 Operador:op Operando:e2
+          {:
+              // Verificar los tipos de e1 y e2
+              // Si son identificadores, buscar sus valores
+              // Realizar la operación aritmética
+
+              // Crear un nuevo nodo OpAritm con el resultado
+
+              System.out.println("Operando 1: " + e1 + " Operador: " + op + " Operando 2: " + e2);
+
+              Object resultado= OpAritmetica.eval(e1, op, e2);
+              System.out.println("Resultado: "+resultado);
+              switch (resultado) {
+                  case Integer i -> RESULT = i;
+                  case Float v -> RESULT = v;
+                  case String s -> RESULT = s;
+                  case Exception e -> {
+                    // averiguar si el error es por division por cero
+                    if (e.getMessage().contains("division by zero"))
+                    {
+                    System.out.println("-->"+e.getMessage());
+                                          RESULT = null;
+                    }
+
+
+                  }
+                  default -> throw new IllegalStateException("Unexpected value: " + resultado);
+
+                  }
+
+          :}
+          | OpAritm:e1 Operador:op Operando:e2
+          {:
+              // Verificar los tipos de e1 y e2
+              // Si son identificadores, buscar sus valores
+              // Realizar la operación aritmética
+              // Crear un nuevo nodo OpAritm con el resultado
+                            System.out.println("Operando 1: " + e1 + " Operador: " + op + " Operando 2: " + e2);
+
+
+              Object resultado= OpAritmetica.eval(e1, op, e2);
+                            switch (resultado) {
+                                case Integer i -> RESULT = i;
+                                case Float v -> RESULT = v;
+                                case String s -> RESULT = s;
+                                default -> throw new IllegalStateException("Unexpected value: " + resultado);
+
+                                }
+          :};
+
+Expr ::= OpAritm
+       | OP_RESTA Operando:e1
+       {:   NodeLeaf menos = new T2.MainTests.AST.NodeLeaf(ParserSym.OP_RESTA, "-");
+              NodeLeaf n = new T2.MainTests.AST.NodeLeaf(e1);
+           RESULT = new T2.MainTests.AST.NodeExprArithmetic(new NodeLe);:}
+       | Operando;
+
+
+Sent ::= Asign PUNTO_COMA
+            | Sent_if
+            | Fn_call
+            | Expr PUNTO_COMA;
+
+Asign ::= IDENTIFICADOR OP_ASIGN Expr;
+
+Sent_if ::= IF L_PARENTESIS Expr_bool R_PARENTESIS L_LLAVE Sent_list R_LLAVE
+                    | IF L_PARENTESIS Expr_bool R_PARENTESIS L_LLAVE Sent_list R_LLAVE ELSE L_LLAVE Sent_list R_LLAVE;
+
+Fn_print ::= PRINT L_PARENTESIS LIT_STRING:e1 R_PARENTESIS PUNTO_COMA{:
+                        Object data = e1;
+                        System.out.println(data.toString());:};
+
+Fn_mean ::= MEAN L_PARENTESIS Expr:e1 R_PARENTESIS PUNTO_COMA{:
+                        Object data = e1;
+                        System.out.println("Esta es la funcion de mean, proximamente: " + data.toString());:};
+Fn_call ::= Fn_print
+                    | Fn_mean;
+
+Expr_bool ::= Expr:e1 OP_MENOR Expr:e2
+          {:
+              RESULT = OpBooleana.eval(e1, "<", e2);
+          :}
+          | Expr:e1 OP_MENOR_IGUAL Expr:e2
+          {:
+              RESULT = OpBooleana.eval(e1, "<=", e2);
+
+          :}
+          | Expr:e1 OP_MAYOR Expr:e2
+          {:
+              RESULT = OpBooleana.eval(e1, ">", e2);
+
+          :}
+          | Expr:e1 OP_MAYOR_IGUAL Expr:e2
+          {:
+              RESULT = OpBooleana.eval(e1, ">=", e2);
+
+          :}
+          | Expr:e1 OP_IGUAL Expr:e2
+          {:
+              RESULT = OpBooleana.eval(e1, "==", e2);
+
+          :}
+          | Expr:e1 OP_DIFERENTE Expr:e2
+          {:
+              RESULT = OpBooleana.eval(e1, "!=", e2);
+
+          :}
+          | Expr_bool:e1 OP_AND Expr_bool:e2
+          {:
+              RESULT = (Boolean)e1 && (Boolean)e2;
+          :}
+          | Expr_bool:e1 OP_OR Expr_bool:e2
+          {:
+              RESULT = (Boolean)e1 || (Boolean)e2;
+          :}
+          | OP_NOT Expr_bool:e1
+          {:
+              RESULT = !(Boolean)e1;
+          :}
+          | L_PARENTESIS Expr_bool:e1 R_PARENTESIS
+          {:
+              RESULT = e1;
+          :}
+          | TRUE
+          {:
+              RESULT = true;
+          :}
+          | FALSE
+          {:
+              RESULT = false;
+          :};

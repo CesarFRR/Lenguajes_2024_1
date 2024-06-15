@@ -9,7 +9,6 @@ float 0var0 = 023.4;
 
 # comentario
 
-"""documentacion con triple comillas dobles """
 
 string texto1 = "texto doble comilla " ;
 

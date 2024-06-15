@@ -4,7 +4,7 @@
  */
 package model.scanner.Token;
 
-import java.awt.Color;
+import java.awt.*;
 
 /**
  *
