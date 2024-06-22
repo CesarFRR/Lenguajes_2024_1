@@ -8,66 +8,69 @@ package model.parser;
 /** CUP generated class containing symbol constants. */
 public class ParserSym {
   /* terminals */
-  public static final int GETASCII = 31;
-  public static final int OP_MAYOR = 42;
+  public static final int GETASCII = 32;
+  public static final int OP_MAYOR = 45;
   public static final int LIT_INT = 19;
   public static final int CHAR = 15;
-  public static final int L_CORCHETE = 54;
+  public static final int L_CORCHETE = 57;
   public static final int LIT_FLOAT = 20;
-  public static final int DOS_PUNTOS = 59;
-  public static final int OP_NOT = 48;
-  public static final int OP_AND = 46;
+  public static final int DOS_PUNTOS = 62;
+  public static final int OP_NOT = 51;
+  public static final int OP_AND = 49;
   public static final int CONTINUE = 9;
   public static final int INT = 12;
-  public static final int OP_ASIGN = 49;
+  public static final int PRINTLN = 23;
+  public static final int OP_ASIGN = 52;
   public static final int FOR = 6;
-  public static final int OP_DIV = 37;
-  public static final int L_LLAVE = 52;
-  public static final int MEDIAN = 27;
-  public static final int IDENTIFICADOR = 33;
-  public static final int R_LLAVE = 53;
+  public static final int OP_DIV = 40;
+  public static final int SORT = 34;
+  public static final int L_LLAVE = 55;
+  public static final int MEDIAN = 28;
+  public static final int IDENTIFICADOR = 36;
+  public static final int COPY = 35;
+  public static final int R_LLAVE = 56;
   public static final int FN = 10;
-  public static final int R_CORCHETE = 55;
-  public static final int OP_DIFERENTE = 45;
-  public static final int MIN = 26;
+  public static final int R_CORCHETE = 58;
+  public static final int OP_DIFERENTE = 48;
+  public static final int MIN = 27;
   public static final int IF = 2;
-  public static final int PUNTO_COMA = 57;
-  public static final int OP_MOD = 38;
+  public static final int PUNTO_COMA = 60;
+  public static final int OP_MOD = 41;
   public static final int EOF = 0;
   public static final int BOOLEAN = 11;
   public static final int RETURN = 7;
   public static final int TRUE = 16;
   public static final int error = 1;
-  public static final int COMA = 56;
-  public static final int MODE = 28;
-  public static final int OP_MULT = 36;
+  public static final int COMA = 59;
+  public static final int MODE = 29;
+  public static final int OP_MULT = 39;
   public static final int LIT_STRING = 21;
-  public static final int OP_OR = 47;
+  public static final int OP_OR = 50;
   public static final int NULL = 18;
-  public static final int OP_RESTA = 35;
+  public static final int OP_RESTA = 38;
   public static final int LIT_CHAR = 22;
-  public static final int MEAN = 24;
+  public static final int MEAN = 25;
   public static final int BREAK = 8;
-  public static final int L_PARENTESIS = 50;
-  public static final int OP_MAYOR_IGUAL = 43;
+  public static final int L_PARENTESIS = 53;
+  public static final int OP_MAYOR_IGUAL = 46;
   public static final int ELSE = 3;
-  public static final int PUNTO = 58;
-  public static final int OP_IGUAL = 44;
+  public static final int PUNTO = 61;
+  public static final int OP_IGUAL = 47;
   public static final int WHILE = 5;
   public static final int FLOAT = 13;
-  public static final int OP_MENOR_IGUAL = 41;
-  public static final int R_PARENTESIS = 51;
-  public static final int LEN = 32;
+  public static final int OP_MENOR_IGUAL = 44;
+  public static final int R_PARENTESIS = 54;
+  public static final int LEN = 33;
   public static final int STRING = 14;
-  public static final int OP_SUMA = 34;
-  public static final int GETCHAR = 29;
+  public static final int OP_SUMA = 37;
+  public static final int GETCHAR = 30;
   public static final int FALSE = 17;
-  public static final int MAX = 25;
-  public static final int OP_POT = 39;
+  public static final int MAX = 26;
+  public static final int OP_POT = 42;
   public static final int ELIF = 4;
-  public static final int PRINT = 23;
-  public static final int GETCHARFROMASCII = 30;
-  public static final int OP_MENOR = 40;
+  public static final int PRINT = 24;
+  public static final int GETCHARFROMASCII = 31;
+  public static final int OP_MENOR = 43;
   public static final String[] terminalNames = new String[] {
   "EOF",
   "error",
@@ -92,6 +95,7 @@ public class ParserSym {
   "LIT_FLOAT",
   "LIT_STRING",
   "LIT_CHAR",
+  "PRINTLN",
   "PRINT",
   "MEAN",
   "MAX",
@@ -102,6 +106,8 @@ public class ParserSym {
   "GETCHARFROMASCII",
   "GETASCII",
   "LEN",
+  "SORT",
+  "COPY",
   "IDENTIFICADOR",
   "OP_SUMA",
   "OP_RESTA",

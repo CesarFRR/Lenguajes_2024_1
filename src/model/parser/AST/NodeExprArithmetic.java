@@ -1,5 +1,7 @@
 package model.parser.AST;
 
+import model.parser.ParserSym;
+
 public class NodeExprArithmetic extends Node3 implements InterfaceExpr{
 
     public NodeExprArithmetic(int id, Node expr1, Node operator, Node expr2) {
@@ -24,9 +26,36 @@ public class NodeExprArithmetic extends Node3 implements InterfaceExpr{
      **/
     @Override
     public Object execute() {
-        Object left = getRealValue(child1.execute()); // getRealValue(
+        Object l, r;
+        l = r = null;
+        if(child1 instanceof NodeFnCall nfc){
+            l = new NodeLeaf(ParserSym.IDENTIFICADOR, nfc.execute());
+        }
+        if(child3 instanceof NodeFnCall nfc){
+           // System.out.println("es instancia de NodeFnCall" + nfc.execute() + "\n");
+            r = new NodeLeaf(ParserSym.IDENTIFICADOR, nfc.execute());
+        }
+
+        if(child1 instanceof NodeVarId nvid){
+            l = new NodeLeaf(ParserSym.IDENTIFICADOR, nvid.execute());
+        }
+       if(child3 instanceof NodeVarId nvid){
+           //System.out.println("es instancia de NodeVarId" + nvid.execute() + "\n");
+            r = new NodeLeaf(ParserSym.IDENTIFICADOR, nvid.execute());
+        }
+
+//       System.out.println("OPERACION AITM: "+child1.execute()+" "+child2.execute()+" "+child3.execute()+child3.getClass()+"\n");
+        if(!(child1 instanceof Node nl)){
+            l = new NodeLeaf(0, child1);
+        }
+        if(!(child2 instanceof Node nl)){
+            r = new NodeLeaf(0, child3);
+        }
+        l = (l==null) ? child1.execute() : l;
+        r = (r==null) ? child3.execute() : r;
+        Object left = getRealValue(l); // getRealValue(
         Object operator = getRealValue(child2.execute());
-        Object right = getRealValue(child3.execute());
+        Object right = getRealValue(r);
 
         switch (operator.toString()) {
             case "+" -> {

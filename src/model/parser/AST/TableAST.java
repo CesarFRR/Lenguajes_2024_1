@@ -24,6 +24,14 @@ public class TableAST {
         }
     }
 
+    public void cleanidTable(){
+        idTable.clear();
+        idTable.push(new HashMap<>());
+    }
+    public void cleanfnTable(){
+        fnTable.clear();
+    }
+
     public Object getId(String name) {
         // Buscar en el entorno actual
         if(idTable.isEmpty()) return null;
@@ -93,6 +101,7 @@ public class TableAST {
     }
 
     public Object getFn(String name) {
+        if (!fnTable.containsKey(name)) return null;
         return fnTable.get(name);
     }
 

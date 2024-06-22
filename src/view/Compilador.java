@@ -243,7 +243,7 @@ public class Compilador extends javax.swing.JFrame {
             }
         });
 
-        btnSemantico.setText("Análisis semántico");
+        btnSemantico.setText("Ejecutar AST");
         btnSemantico.setEnabled(false);
         btnSemantico.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
@@ -402,6 +402,8 @@ public class Compilador extends javax.swing.JFrame {
     }//GEN-LAST:event_btnGuardarComoActionPerformed
 
     private void btnLexicoActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLexicoActionPerformed
+        this.lexer = null;
+        this.parser = null;
         this.btnSintactico.setEnabled(false);
         this.btnSemantico.setEnabled(false);
         System.out.println("Analisis lexico\n");
@@ -524,7 +526,11 @@ public class Compilador extends javax.swing.JFrame {
         // TODO add your handling code here:
         this.addTextInConsole("\nAnalisis semántico:\n");
         Object result = this.parser.execute();
-        this.addTextInConsole("resultado: " + result);
+        if (result != null && (!(result instanceof String s) || !s.equals("null"))) {
+            this.addTextInConsole("resultado: " + result);
+        }
+
+
     }//GEN-LAST:event_btnSemanticoActionPerformed
 
     private void addTextInConsole(String text) {
@@ -533,6 +539,11 @@ public class Compilador extends javax.swing.JFrame {
 
     private void btnCompilarActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCompilarActionPerformed
         // TODO add your handling code here:
+
+        this.lexer = null;
+        this.parser = null;
+
+
         this.btnLexicoActionPerformed(evt);
         this.btnSintacticoActionPerformed(evt);
         this.btnSemanticoActionPerformed(evt);

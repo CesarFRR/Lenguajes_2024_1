@@ -1,20 +1,39 @@
 package model.parser.AST;
 
-
 import model.parser.ParserSym;
-public class NodeFnLen extends NodeLeaf implements InterfaceExpr, InterfaceStruct{
+
+import java.util.Arrays;
+
+public class NodeFnSort extends NodeLeaf implements InterfaceExpr, InterfaceStruct{
     private static TableAST table;
 
     static {
         table = new TableAST();
     }
-    public NodeFnLen(Object value) {
-        super(ParserSym.LEN, value);
+    public NodeFnSort(Object value) {
+        super(ParserSym.SORT, value);
     }
 
+    /**
+     * Devuelve la representación en String del árbol.
+     *
+     * @param level Nivel del nodo
+     * @return String con la representación del árbol
+     **/
+    @Override
+    public String toString(int level) {
+        return "";
+    }
+
+    /**
+     * Ejecuta la acción de este nodo.
+     *
+     * @return
+     **/
     @Override
     public Object execute() {
-        Object result =0;
+
+        Object result = null;
 
 
         if(this.value instanceof NodeVarId){
@@ -22,13 +41,12 @@ public class NodeFnLen extends NodeLeaf implements InterfaceExpr, InterfaceStruc
             //System.out.println("value: "+this.value + " type: "+this.value.getClass().getSimpleName());
         }
 
-        // Si no es un string, ES UN ARREGLO!!
 
-        //TODO: Implementar el largo de un arreglo
+
 
         if(this.value instanceof NodeArrVar || this.value instanceof NodeArrVarId){
             if(this.value instanceof NodeArrVar arrVar) {
-                result = arrVar.getShape()[0];
+                arrVar.sortAll();
             }
             if(this.value instanceof NodeArrVarId arrVarId) {
                 String name = arrVarId.getName();
@@ -39,6 +57,8 @@ public class NodeFnLen extends NodeLeaf implements InterfaceExpr, InterfaceStruc
                 if(dimAccess.length > shape.length) {
                     throw new RuntimeException("Error: Acceso a una dimensión inexistente en la matriz");
                 }
+                if(dimAccess.length == shape.length) return null;
+
                 //quiero comprobar que los indices esten dentro de los limites de la matriz y sus shapes
                 for(int i = 0; i < dimAccess.length; i++) {
                     if(dimAccess[i] >= shape[i]){
@@ -54,39 +74,20 @@ public class NodeFnLen extends NodeLeaf implements InterfaceExpr, InterfaceStruc
                     }
                 }
 
-                if (dimAccess.length >= shape.length) { // se quiere hallar el length del elemento en la posición dimAccess, posiblemente un string
-                    result = arrVar.get(dimAccess);
-                    if (result instanceof String) {
-                        result = cleanString((String) result).length();
-                    }
-                    //result = arrVar.get(dimAccess).length();
+               arrVar.sort(dimAccess);
+//                int index = dimAccess.length-1;
+//                result = shape[dimAccess.length];
 
-                } else { // se quiere retornar el length de una dimensión
-                    int index = dimAccess.length-1;
-                    result = shape[dimAccess.length];
-                }
 
             }
         }else{
-
-
-                Object realValue = getRealValue(this.value);
-                if(realValue instanceof String s){
-                    result= cleanString(s).length();
-                }
-
-
-
+            Object realValue = getRealValue(this.value);
+            if(realValue instanceof String s){
+                char[] charArray = s.toCharArray();
+                Arrays.sort(charArray);
+                result = new NodeLeaf(ParserSym.LIT_STRING, new String(charArray));
+            }
         }
-
-
-
-
-
-
-
-
-        return new NodeLeaf(ParserSym.LIT_INT, result);
+        return result;
     }
-
 }

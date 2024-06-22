@@ -36,6 +36,7 @@ public abstract class Node {
 
     public String symPrint(int id) {
         // Aquí puedes agregar los símbolos que necesites
+        if(id < 0) return "-1";
         return TokenType.getSymbol(id);
     }
 
@@ -49,6 +50,10 @@ public abstract class Node {
 
     public Object getValue() {
         return null;
+    }
+
+    public Object copy(){
+        return "**Object**";
     }
 }
 

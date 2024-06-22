@@ -27,11 +27,12 @@ public class NodeStructIfElse extends Node3 implements InterfaceStruct{
         for (int i = 0; i < level; i++) {
             indent += " ";
         }
+        String elseStr = (child3 == null) ? "" : child3.toString(level + 1);
         return symPrint(id) + "\n" +
                 indent + " " + child1.toString(level + 1) + "\n" +
                 indent + " " + child2.toString(level + 1) + "\n" +
                 indent + " " + (new NodeLeaf(id, "else")).toString(level + 1) + "\n" +
-                indent + " " + child3.toString(level + 1);
+                indent + " " + elseStr;
     }
 
     /**

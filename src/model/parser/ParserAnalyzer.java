@@ -2,6 +2,7 @@ package model.parser;
 
 import java_cup.runtime.Symbol;
 import model.parser.AST.Node;
+import model.parser.AST.TableAST;
 import model.scanner.Lexer;
 import model.scanner.Token.Token;
 import model.scanner.Token.TokenType;
@@ -17,9 +18,10 @@ public class ParserAnalyzer {
     private Object result;
     private List<Token> tokens;
     private List<Token> etokens;
-
+     private TableAST table = new TableAST();
 
     public ParserAnalyzer(String filePath) throws Exception {
+
         this.filePath = filePath;
         this.runParser(filePath);
         this.tokens = this.lexer.getTokens();
@@ -27,12 +29,15 @@ public class ParserAnalyzer {
     }
 
     public ParserAnalyzer(BufferedReader reader) throws Exception {
+
         this.runParser(reader);
         this.tokens = this.lexer.getTokens();
         this.etokens = this.lexer.getErrors();
     }
 
     private Parser runParser(Object filename) throws Exception {
+        table.cleanidTable();
+        table.cleanfnTable();
         if (filename instanceof BufferedReader bff) {
 
             this.lexer = new Lexer(bff);

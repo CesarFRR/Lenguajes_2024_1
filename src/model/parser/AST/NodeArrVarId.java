@@ -5,6 +5,11 @@ import model.parser.ParserSym;
 public class NodeArrVarId extends Node implements InterfaceExpr, InterfaceStruct{
     private static TableAST table;
     private String identifier;
+
+    public void setIndexes(Node indexes) {
+        this.indexes = indexes;
+    }
+
     private Node indexes;
     static {
         table = new TableAST();
@@ -32,7 +37,8 @@ public class NodeArrVarId extends Node implements InterfaceExpr, InterfaceStruct
 
     @Override
     public String toString() {
-        return "" + ((NodeArrVar)table.getId(identifier)).toString();
+        Object s = table.getId(identifier);
+        return s == null ? "null" : s.toString();
     }
 
     /**
@@ -82,5 +88,9 @@ public class NodeArrVarId extends Node implements InterfaceExpr, InterfaceStruct
     }
     public Node getIndexes() {
         return indexes;
+    }
+    public int[] getIndexesArray() {
+        int[] dimAccess = this.convertListToIntArray(this.getIntValuesList((NodeTree) this.indexes));
+        return dimAccess;
     }
 }

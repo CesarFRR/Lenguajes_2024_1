@@ -37,8 +37,11 @@ public interface InterfaceStruct {
                     break;
                 case "return":
                     if(!existsState("fn")) throw new IllegalStateException("No se puede retornar un valor fuera de una función.");
-                    while(!getState()[0].equals("fn"))
-                        structStateStack.removeLast();
+                    while(!getState()[0].equals("fn")) structStateStack.removeLast();
+                    if(value == null || value == "void") last[2] = "void";
+                    else last[2] = value;
+
+                    last[1] = "return";
                     break;
                 default:
                     throw new IllegalStateException("Unexpected value: " + status);
@@ -75,6 +78,20 @@ public interface InterfaceStruct {
         }
 
         return instructionNodes;
+    }
+
+    public default List<Object> getObjectValuesList(NodeTree root) {
+        List<Object> objectValues = new ArrayList<>();
+        NodeTree currentNode = root;
+
+        while (currentNode != null) {
+            if (currentNode.n != null) {
+                objectValues.add(currentNode.n);
+            }
+            currentNode = currentNode.child;
+        }
+
+        return objectValues;
     }
 
     public default List<Integer> getIntValuesList(NodeTree root) {
@@ -126,8 +143,44 @@ public interface InterfaceStruct {
             return array;
         }
 
+    public default Object[] convertListToObjectArray(List<Object> list) {
+        Object[] array = new Object[list.size()];
+        for (int i = 0; i < list.size(); i++) {
+            array[i] = list.get(i);
+        }
+        return array;
+    }
+    public default List<Integer> convertArrayToList(int[] array) {
+        List<Integer> list = new ArrayList<>();
+        for (int i : array) {
+            list.add(i);
+        }
+        return list;
+    }
 
     public default void removeState() {
+//        System.out.println("REMOVING STATE: " + getState()[0] + " " + getState()[1] + " " + getState()[2] + "\n");
+
         if(getStackSize()>1) structStateStack.removeLast();
+
+//        System.out.println("\n\nREMOVING STATE DESPUES: " + getState()[0] + " " + getState()[1] + " " + getState()[2] + "\n");
+    }
+
+    public default NodeTree createNodeTreeList(int[] array) {
+        if (array.length == 0) {
+            return null;
+        }
+
+        NodeTree head = new NodeTree(new NodeLeaf(0, array[0]), null);
+        NodeTree current = head;
+
+        for (int i = 1; i < array.length; i++) {
+            NodeLeaf leaf = new NodeLeaf(0, array[i]);
+            NodeTree newNode = new NodeTree(leaf, null);
+            current.child = newNode;
+            current = newNode;
+        }
+
+        return head;
     }
 }

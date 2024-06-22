@@ -1,4 +1,4 @@
-package model.scanner;
+package Data;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -90,6 +90,7 @@ String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
 "true" { return symbol(TokenType.TRUE, yytext()); }
 "false" { return symbol(TokenType.FALSE, yytext()); }
 "null" { return symbol(TokenType.NULL, yytext()); }
+"println" { return symbol(TokenType.PRINTLN, yytext()); }
 "print" { return symbol(TokenType.PRINT, yytext()); }
 /* Extra: Palabras reservadas, para implementaciones estadisticas (Problema del proyecto)*/
 "mean" { return symbol(TokenType.MEAN, yytext()); }
@@ -101,7 +102,8 @@ String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
 "getCharFromAscii" { return symbol(TokenType.GETCHARFROMASCII, yytext()); } //getCharFromAscii(97) -> un string de el elemento dado su codigo ascii
 "getAscii" { return symbol(TokenType.GETASCII, yytext()); } // getAscii("a") -> un int de el codigo ascii de el caracter
 "len" { return symbol(TokenType.LEN, yytext()); } // len("hola") -> un int de la longitud de un string o un arreglo
-
+"sort" { return symbol(TokenType.SORT, yytext()); } // sort([3,2,1]) -> un arreglo ordenado
+"copy" { return symbol(TokenType.COPY, yytext()); } // copy([3,2,1]) -> una copia de un arreglo
 /* Identificador */
 {Identificador} { return symbol(TokenType.IDENTIFICADOR, yytext()); }
 

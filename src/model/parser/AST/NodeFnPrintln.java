@@ -2,10 +2,10 @@ package model.parser.AST;
 
 import model.parser.ParserSym;
 
-public class NodeFnPrint extends NodeLeaf implements InterfaceExpr{
+public class NodeFnPrintln extends NodeLeaf implements InterfaceExpr{
 
 
-    public NodeFnPrint(Object value) {
+    public NodeFnPrintln(Object value) {
         super(ParserSym.PRINT, value);
     }
     @Override
@@ -37,7 +37,7 @@ public class NodeFnPrint extends NodeLeaf implements InterfaceExpr{
             result = this.value;
         }
 
-        System.out.print(cleanString(result.toString()));
+        System.out.println(cleanString(result.toString()));
         return null;
     }
 

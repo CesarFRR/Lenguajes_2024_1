@@ -21,13 +21,30 @@ public class NodeVarId extends Node{
         if( var instanceof NodeArrVar nav){
             return nav.toString();
         }
+        if (var == null) {
+            return name + ": null";
+        }
         return name + ": " + ((NodeVar)var).getValue();
+    }
+    public String toString() {
+        Object var = table.getId(name);
+        if( var instanceof NodeArrVar nav){
+            return nav.toString();
+        }
+        if (var == null) {
+            return name + ": null";
+        }
+        Object v = ((NodeVar)var).getValue();
+        return  v.toString();
     }
 
     @Override
     public Object execute() {
 
         Object var = table.getId(name);
+        if(var ==null){
+            return null;
+        }
         if( var instanceof NodeArrVar nav){
             return nav;
         }

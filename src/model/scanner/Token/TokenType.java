@@ -51,6 +51,7 @@ public enum TokenType {
     LIT_CHAR(ColorType.LIT),
 
     // Funciones
+    PRINTLN(ColorType.FN),
     PRINT(ColorType.FN),
     MEAN(ColorType.FN),
     MAX(ColorType.FN),
@@ -61,6 +62,8 @@ public enum TokenType {
     GETCHARFROMASCII(ColorType.FN),
     GETASCII(ColorType.FN),
     LEN(ColorType.FN),
+    SORT(ColorType.FN),
+    COPY(ColorType.FN),
     // Identificador
     IDENTIFICADOR(ColorType.ID),
 
@@ -169,6 +172,7 @@ enum TokenSymbol {
     LIT_CHAR("LIT_CHAR"),
 
     // Funciones
+    PRINTLN("println"),
     PRINT("print"),
     MEAN("mean"),
     MAX("max"),
@@ -179,6 +183,8 @@ enum TokenSymbol {
     GETCHARFROMASCII("getCharFromAscii"),
     GETASCII("getAscii"),
     LEN("len"),
+    SORT("sort"),
+    COPY("copy"),
 
     // Identificador
     IDENTIFICADOR("IDENTIFICADOR"),

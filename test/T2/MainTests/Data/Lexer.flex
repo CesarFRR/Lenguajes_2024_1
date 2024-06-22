@@ -4,7 +4,7 @@ import java.util.ArrayList;
 
 import java_cup.runtime.*;
 
-import Token.*;
+import model.scanner.Token.*;
 
 %%
 %public

@@ -5,6 +5,7 @@
 package model.scanner;
 
 import java_cup.runtime.Symbol;
+import model.parser.AST.TableAST;
 import model.scanner.Token.Token;
 import model.scanner.Token.TokenType;
 
@@ -18,19 +19,24 @@ public class LexerAnalyzer {
     private List<Token> tokens;
     private List<Token> etokens;
     private Lexer lexer;
+    private TableAST table = new TableAST();
     public LexerAnalyzer(String filePath) {
+
         this.runLexer(filePath);
         this.tokens = this.lexer.getTokens();
         this.etokens = this.lexer.getErrors();
     }
     // Nuevo constructor que acepta un BufferedReader
     public LexerAnalyzer(BufferedReader reader) {
+
         this.runLexer(reader);
         this.tokens = this.lexer.getTokens();
         this.etokens = this.lexer.getErrors();
     }
 
     private Lexer runLexer(Object filename) {
+        table.cleanidTable();
+        table.cleanfnTable();
         if (filename instanceof BufferedReader) {
             this.lexer = new Lexer((BufferedReader) filename);
         }else{

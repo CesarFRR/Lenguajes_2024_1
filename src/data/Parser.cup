@@ -1,10 +1,10 @@
-package model.parser;
+package Data;
 import java_cup.runtime.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.ArrayList;
 import java.util.List;
-import model.parser.AST.*;
+import AST.*;
 
 class Parser;
 
@@ -57,7 +57,7 @@ terminal String LIT_STRING;
 terminal Character LIT_CHAR;
 
 /* Funciones */
-terminal PRINT, MEAN, MAX, MIN, MEDIAN, MODE, GETCHAR, GETCHARFROMASCII, GETASCII, LEN;
+terminal PRINTLN, PRINT, MEAN, MAX, MIN, MEDIAN, MODE, GETCHAR, GETCHARFROMASCII, GETASCII, LEN, SORT, COPY;
 
 /* Identificador */
 terminal IDENTIFICADOR;
@@ -80,9 +80,10 @@ terminal L_PARENTESIS, R_PARENTESIS, L_LLAVE, R_LLAVE, L_CORCHETE, R_CORCHETE, C
 
 /* Non terminals */
 non terminal Node Program;
-non terminal NodeTree Sent_list, Dims;
-non terminal Node Sent, Dim, Sent_if, Sent_for, Sent_while, Expr_bool, Asign, Expr_Aritm, Fn_call, Fn_print, Fn_mean, Fn_len, Fn_getChar, Fn_getCharFromAscii, Fn_getAscii;
+non terminal NodeTree Sent_list, Dims, Formals, Formal_arr_dims, Fn_args, Array_lits, Inner_array_lits;
+non terminal Node Sent, Dim, Sent_if, Sent_for, Sent_while, Expr_bool, Asign, Expr_Aritm, Fn_call, Fn_println, Fn_print, Fn_mean, Fn_len, Fn_getChar, Fn_getCharFromAscii, Fn_getAscii, Fn_sort, Fn_copy, Fn_call_expr;
 non terminal Node Declar, Array_declar, Array_assign, Type, Number;
+non terminal Node Fn_declar, Formal, Formal_arr_dim;
 non terminal Node Expr;
 non terminal Node Literal, LiteralBool, LiteralNumber, LiteralString;
 
@@ -163,17 +164,40 @@ Sent ::= Declar:declar PUNTO_COMA{: RESULT = declar;:}
             | Sent_for:sent_for {: RESULT = sent_for;:}
             | Sent_while:sent_while {: RESULT = sent_while;:}
             | RETURN Expr:e PUNTO_COMA {: RESULT = new NodeStructReturn(e);:}
+            | RETURN PUNTO_COMA {: RESULT = new NodeStructReturn(null);:}
             | BREAK PUNTO_COMA {: RESULT = new NodeStructBreak();:}
             | CONTINUE PUNTO_COMA {: RESULT = new NodeStructContinue();:}
-            //| Fn_call:fn_call PUNTO_COMA{: RESULT = fn_call;:}
+            | Fn_declar:fn_declar {: RESULT = fn_declar;:}
+//            | Fn_call:fn_call PUNTO_COMA{: RESULT = fn_call;:}
             | Expr:e PUNTO_COMA{: RESULT = e;:};
 
-Declar ::= Type:t IDENTIFICADOR:i  {:
-//System.out.println("Declaracion sin asignacion, si PASA POR AQUI: \n\n " + t + "\n\n" + i + "\n\n");
+Formals ::= Formal:f COMA Formals:fs {: RESULT = new AST.NodeTree(f, (NodeTree)fs); :}
+            | Formal:f {: RESULT = new AST.NodeTree(f, null); :};
 
-RESULT = new NodeVar(ParserSym.IDENTIFICADOR,t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), null);:}
+Formal ::= Type:t IDENTIFICADOR:i {: RESULT = new AST.NodeParam(t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), null); :}
+            | Type:t Formal_arr_dims:dims IDENTIFICADOR:i {: RESULT = new AST.NodeParam(t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), (AST.NodeTree)dims); :};
+
+Formal_arr_dims ::= Formal_arr_dim:dim Formal_arr_dims:dims {: RESULT = new AST.NodeTree(dim, (NodeTree)dims); :}
+            | Formal_arr_dim:dim {: RESULT = new AST.NodeTree(dim, null); :};
+
+Formal_arr_dim ::= L_CORCHETE:lc R_CORCHETE:rc {: RESULT = new AST.NodeLeaf(-1, "[]"); :};
+
+Fn_declar ::= FN IDENTIFICADOR:i L_PARENTESIS Formals:params R_PARENTESIS L_LLAVE Sent_list:sl R_LLAVE {: RESULT = new AST.NodeFnDeclar(new AST.NodeLeaf(ParserSym.IDENTIFICADOR, i), (AST.NodeTree)params, (AST.NodeTree)sl); :}
+                    | FN IDENTIFICADOR:i L_PARENTESIS R_PARENTESIS L_LLAVE Sent_list:sl R_LLAVE {: RESULT = new AST.NodeFnDeclar(new AST.NodeLeaf(ParserSym.IDENTIFICADOR, i), null, (AST.NodeTree)sl); :}
+                    | FN IDENTIFICADOR:i L_PARENTESIS R_PARENTESIS L_LLAVE R_LLAVE {: RESULT = new AST.NodeFnDeclar(new AST.NodeLeaf(ParserSym.IDENTIFICADOR, i), null, null); :};
+
+Sent_if ::= IF L_PARENTESIS Expr:e R_PARENTESIS L_LLAVE Sent_list:s_list1 R_LLAVE {: RESULT = new NodeStructIfElse(-1, (AST.Node)e, (AST.NodeTree)s_list1, null);:}
+                    | IF L_PARENTESIS Expr:e R_PARENTESIS L_LLAVE Sent_list:s_list1 R_LLAVE ELSE L_LLAVE Sent_list:s_list2 R_LLAVE {: RESULT = new NodeStructIfElse(-1, (Node)e, (NodeTree)s_list1, (NodeTree)s_list2);:};
+
+Sent_for ::= FOR L_PARENTESIS Declar:decl PUNTO_COMA Expr:bool PUNTO_COMA Asign:update R_PARENTESIS L_LLAVE Sent_list:s_list R_LLAVE {:
+    RESULT = new NodeStructFor(ParserSym.FOR, (Node)decl, (Node)bool, (Node)update, (NodeTree)s_list);:};
+
+Sent_while ::= WHILE L_PARENTESIS Expr_bool:e R_PARENTESIS L_LLAVE Sent_list:s_list R_LLAVE {:
+    RESULT = new NodeStructWhile(ParserSym.WHILE, (Node)e, (NodeTree)s_list);:};
+
+
+Declar ::= Type:t IDENTIFICADOR:i  {: RESULT = new NodeVar(ParserSym.IDENTIFICADOR,t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), null);:}
             | Type:t IDENTIFICADOR:i OP_ASIGN Expr:ex{:
-            //System.out.println("Declaracion con asignacion, si PASA POR AQUI: \n\n " + t + "\n\n" + i + "\n\n" + ex + "\n\n");
             NodeLeaf n = new NodeLeaf(-1, ex);
             RESULT = new NodeVar(ParserSym.IDENTIFICADOR,t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), n);:};
 
@@ -183,8 +207,20 @@ Dim ::= L_CORCHETE Expr:e R_CORCHETE {:
 Dims ::= Dim:d Dims:ds {: RESULT = new NodeTree(d, ds); :}
             | Dim:d {: RESULT = new NodeTree(d, null); :};
 
-Array_declar ::= Type:t IDENTIFICADOR:i  Dims:dims  {:
-    RESULT = new NodeArrVar(ParserSym.IDENTIFICADOR,t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), (NodeTree)dims, null);:};
+Array_declar ::= Type:t Dims:dims  IDENTIFICADOR:i   {:
+    RESULT = new NodeArrVar(ParserSym.IDENTIFICADOR,t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), (NodeTree)dims, null);:}
+            | Type:t Dims:dims  IDENTIFICADOR:i OP_ASIGN L_CORCHETE Array_lits:lits R_CORCHETE {:
+            //System.out.println("Array declar con asignacion de literlaes [3, 4,, 234, ,2 34] por ejemplo");
+            AST.NodeArrVar nav = new NodeArrVar(ParserSym.IDENTIFICADOR,t, new NodeLeaf(ParserSym.IDENTIFICADOR, i), (NodeTree)dims, (NodeTree)lits);
+            nav.isDeclarationWithAssignment();
+            RESULT = nav;:};
+
+Array_lits ::= L_CORCHETE Array_lits:lits R_CORCHETE COMA Array_lits:al {: RESULT = new AST.NodeTree(lits, al); :}
+            | L_CORCHETE Array_lits:lits R_CORCHETE {: RESULT = new NodeTree(lits, null); :}
+            | Literal:l COMA Array_lits:al {: RESULT = new NodeTree(l, al); :}
+            | Literal:l {: RESULT = new NodeTree(l, null); :};
+
+
 Array_assign ::= IDENTIFICADOR:i  Dims:dims  OP_ASIGN Expr:value {:
     RESULT = new NodeArrVar(ParserSym.IDENTIFICADOR, null, new NodeLeaf(ParserSym.IDENTIFICADOR, i), (NodeTree)dims, (Node)value); :};
 
@@ -194,25 +230,17 @@ Type ::= INT:i {:RESULT = new NodeLeaf(ParserSym.INT, i);:}
             | CHAR:ch {:RESULT = new NodeLeaf(ParserSym.CHAR, ch);:}
             | BOOLEAN:b {:RESULT = new NodeLeaf(ParserSym.BOOLEAN, b);:};
 
-Asign ::= IDENTIFICADOR:i OP_ASIGN Expr:e  {: RESULT = new NodeVar(ParserSym.IDENTIFICADOR, null, new NodeLeaf(ParserSym.IDENTIFICADOR, i), (Node)e);:};
+Asign ::= IDENTIFICADOR:i OP_ASIGN Expr:e  {: RESULT = new AST.NodeVar(ParserSym.IDENTIFICADOR, null, new NodeLeaf(ParserSym.IDENTIFICADOR, i), (Node)e);:};
 
-Sent_if ::= IF L_PARENTESIS Expr:e R_PARENTESIS L_LLAVE Sent_list:s_list1 R_LLAVE {: RESULT = new NodeStructIfElse(-1, (Node)e, (NodeTree)s_list1, null);:}
-                    | IF L_PARENTESIS Expr:e R_PARENTESIS L_LLAVE Sent_list:s_list1 R_LLAVE ELSE L_LLAVE Sent_list:s_list2 R_LLAVE {: RESULT = new NodeStructIfElse(-1, (Node)e, (NodeTree)s_list1, (NodeTree)s_list2);:};
-
-Sent_for ::= FOR L_PARENTESIS Declar:decl PUNTO_COMA Expr:bool PUNTO_COMA Asign:update R_PARENTESIS L_LLAVE Sent_list:s_list R_LLAVE {:
-    //System.out.println("AQUI VAMOS POR EL FOR");
-    RESULT = new NodeStructFor(ParserSym.FOR, (Node)decl, (Node)bool, (Node)update, (NodeTree)s_list);:};
-
-Sent_while ::= WHILE L_PARENTESIS Expr_bool:e R_PARENTESIS L_LLAVE Sent_list:s_list R_LLAVE {:
-    RESULT = new NodeStructWhile(ParserSym.WHILE, (Node)e, (NodeTree)s_list);:};
 
 Fn_print ::= PRINT L_PARENTESIS Expr:e1 R_PARENTESIS {:
                  RESULT = new NodeFnPrint(e1);:};
-//            | PRINT L_PARENTESIS IDENTIFICADOR:i R_PARENTESIS PUNTO_COMA{:
-//                        NodeVar var = new NodeVar(-1, null, new NodeLeaf(ParserSym.IDENTIFICADOR, i), null);
-//                        RESULT = new NodeFnPrint(var);:};
+Fn_println ::= PRINTLN L_PARENTESIS Expr:e1 R_PARENTESIS {:
+                 RESULT = new NodeFnPrintln(e1);:};
+
+
 Fn_len ::= LEN L_PARENTESIS Expr:e1 R_PARENTESIS {:
-                        RESULT = new NodeFnLen(e1);:};
+                        RESULT = new AST.NodeFnLen(e1);:};
 
 Fn_getAscii ::= GETASCII L_PARENTESIS Expr:e1 R_PARENTESIS {:
                         RESULT = new NodeFnGetAscii(e1);:};
@@ -226,18 +254,35 @@ Fn_getCharFromAscii ::= GETCHARFROMASCII L_PARENTESIS Expr:e1 R_PARENTESIS {:
 Fn_mean ::= MEAN L_PARENTESIS Expr:e1 R_PARENTESIS {:
                         Object data = e1;
                         System.out.println("Esta es la funcion de mean, proximamente: " + data.toString());:};
-Fn_call ::= Fn_print:fn_print {: RESULT = fn_print;:}
+
+Fn_sort ::= SORT L_PARENTESIS Expr:e1 R_PARENTESIS {:
+                        Object data = e1;
+                        //System.out.println("Esta es la funcion de sort, proximamente: " + data.toString());
+                        RESULT = new AST.NodeFnSort(e1);:};
+
+Fn_call_expr ::= IDENTIFICADOR:i L_PARENTESIS Fn_args:args R_PARENTESIS {:
+    RESULT = new AST.NodeFnCall(new NodeLeaf(ParserSym.IDENTIFICADOR, i), (NodeTree)args, null);:}
+    | IDENTIFICADOR:i L_PARENTESIS R_PARENTESIS {: RESULT = new AST.NodeFnCall(new NodeLeaf(ParserSym.IDENTIFICADOR, i), null, null); :};
+
+Fn_args ::= Expr:e COMA Fn_args:args {: RESULT = new AST.NodeTree(e, (AST.NodeTree)args); :}
+            | Expr:e {: RESULT = new NodeTree(e, null); :};
+
+Fn_call ::= Fn_println:fn_println {: RESULT = fn_println;:}
+            | Fn_print:fn_print {: RESULT = fn_print;:}
             | Fn_len:fn_len {: RESULT = fn_len;:}
             | Fn_getAscii:fn_getAscii {: RESULT = fn_getAscii;:}
             | Fn_getChar:fn_getChar {: RESULT = fn_getChar;:}
             | Fn_getCharFromAscii:fn_getCharFromAscii {: RESULT = fn_getCharFromAscii;:}
-                    | Fn_mean:fn_mean {: RESULT = fn_mean;:};
+            | Fn_call_expr:fn_call_expr {: RESULT = fn_call_expr;:}
+            | Fn_mean:fn_mean {: RESULT = fn_mean;:}
+            | Fn_sort:fn_sort {: RESULT = fn_sort;:};
 
 Expr_bool ::= Expr:e1 OP_MENOR Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_MENOR, "<"), e2); :}
-               | Expr:e1 OP_MAYOR Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_MAYOR, ">"), e2); :}
-               | Expr:e1 OP_IGUAL Expr:e2 {:
-            //   System.out.println("Expr_bool: OP_IGUAL: \n\n" + e1 + "\n\n" + e2 + "\n\n");
-               RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_IGUAL, "=="), e2); :}
-               | Expr:e1 OP_AND Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_AND, "&&"), e2); :}
-               | Expr:e1 OP_OR Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_OR, "||"), e2); :}
-               | OP_NOT Expr:e {: RESULT = new NodeExprBoolean(-1, e, new NodeLeaf(ParserSym.OP_NOT, "!"), null); :};
+                  | Expr:e1 OP_MENOR_IGUAL Expr:e2 {: RESULT = new AST.NodeExprBoolean(-1, e1, new NodeLeaf(Data.ParserSym.OP_MENOR_IGUAL, "<="), e2); :}
+                  | Expr:e1 OP_MAYOR Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_MAYOR, ">"), e2); :}
+                  | Expr:e1 OP_MAYOR_IGUAL Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_MAYOR_IGUAL, ">="), e2); :}
+                  | Expr:e1 OP_IGUAL Expr:e2 {:RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_IGUAL, "=="), e2); :}
+                  | Expr:e1 OP_DIFERENTE Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(Data.ParserSym.OP_DIFERENTE, "!="), e2); :}
+                  | Expr:e1 OP_AND Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_AND, "&&"), e2); :}
+                  | Expr:e1 OP_OR Expr:e2 {: RESULT = new NodeExprBoolean(-1, e1, new NodeLeaf(ParserSym.OP_OR, "||"), e2); :}
+                  | OP_NOT Expr:e {: RESULT = new NodeExprBoolean(-1, e, new NodeLeaf(ParserSym.OP_NOT, "!"), null); :};

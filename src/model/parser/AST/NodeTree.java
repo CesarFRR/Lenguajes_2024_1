@@ -3,9 +3,10 @@ package model.parser.AST;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NodeTree extends Node {
-    Node n;
-    NodeTree child;
+public class NodeTree extends Node implements InterfaceStruct, InterfaceExpr{
+    public Node n;
+    public NodeTree child;
+    private static  boolean isRoot = true;
 
     /**
      * @param level Nivel del nodo
@@ -16,7 +17,7 @@ public class NodeTree extends Node {
         if (child == null) {
             return n == null ? " " : n.toString(level);
         } else {
-            return (n == null ? "" : n.toString(level)) + "\n;\n\n" +
+            return (n == null ? "" : " || n:"+ n.toString(level)) + " child:" +
                     child.toString(level);
         }
     }
@@ -26,6 +27,17 @@ public class NodeTree extends Node {
      **/
     @Override
     public Object execute() {
+        if(isRoot){
+
+            isRoot = false;
+            NodeTree nt = this;
+            List<Node> sents = this.getInstructionNodes(nt);
+            for (Node n : sents) {
+                //System.out.println("n-> " + n + " " + n.getClass());
+            }
+        }
+
+
         List<Object> results = new ArrayList<>();
 
         if (n != null) {

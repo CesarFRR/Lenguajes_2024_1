@@ -42,4 +42,8 @@ public class Node3  extends Node{
         }
         return null;
     }
+    @Override
+    public Object copy() {
+        return new Object();
+    }
 }
