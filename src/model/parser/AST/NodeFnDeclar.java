@@ -1,10 +1,8 @@
 package model.parser.AST;
-
 import model.parser.ParserSym;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class NodeFnDeclar extends Node3 implements InterfaceStruct, InterfaceExpr{
     private static TableAST table;
@@ -50,6 +48,7 @@ public class NodeFnDeclar extends Node3 implements InterfaceStruct, InterfaceExp
 
         List<Node> sentList = (this.child3 instanceof NodeTree nt ) ? this.getInstructionNodes(nt) : new ArrayList<Node>();
         String name = (String) this.child1.execute();
+
         NodeFn fn = new NodeFn(new NodeLeaf(ParserSym.IDENTIFICADOR, name), paramList, sentList);
         table.setFn(name, fn);
 

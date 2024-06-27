@@ -1,5 +1,4 @@
 package model.parser.AST;
-
 import model.parser.ParserSym;
 
 import java.util.List;
@@ -39,15 +38,11 @@ public class NodeParam extends Node3 implements  InterfaceStruct, InterfaceExpr{
     @Override
     public Object execute() {
         Node result = null;
-//        System.out.println("par1");
+        Object value0= null;
         if (this.value == null) return null;
-//        System.out.println("par2");
-        //System.out.println("\n\nPARAM VALUE V1: " + value + "\n\n");
-        value = (value instanceof NodeVarId nvid)? table.getId(nvid.getName()):value;
-      //  System.out.println("\n\nPARAM VALUE V2: " + value + "\n\n");
-        if (this.child3 == null && value instanceof NodeVar nv) { // Es una variable normal
-            //System.out.println("par3 es var normal");
-//            System.out.println("par5 es instancia nodevar");
+//        System.out.println("PARAM EL VALOR ES: " + this.getRealValue(this.value));
+        value0 = (value instanceof NodeVarId nvid)? table.getId(nvid.getName()):value;
+        if (this.child3 == null && value0 instanceof NodeVar nv) { // Es una variable normal
             NodeVar invar = (NodeVar) nv.copy();
             String intype, partype;
             intype = invar.getType();
@@ -55,39 +50,30 @@ public class NodeParam extends Node3 implements  InterfaceStruct, InterfaceExpr{
             if(intype.equals(partype)){
                 nv.child2 = this.child2; // renombrar la variable antes de declararla
                 result = nv;
-//                System.out.println("PARAM IMPRIMIENDO nv: " + nv);
             } else {
-                throw new IllegalStateException("No se pudo ejecutar la declaración de variable, los tipos no coinciden.");
+                throw new IllegalStateException("No se pudo ejecutar la declaración de variable, los tipos no coinciden: " + invar.getName()+ " -> "+ intype + " " +" | " + (String)child2.execute() +" -> "+ partype);
             }
-
-        } else if (value instanceof NodeArrVar nav){ // Es un arreglo
-
-            List<Node> dims = (this.child3 instanceof NodeTree nt)? this.getInstructionNodes(nt) : null;
+        } else if (value0 instanceof NodeArrVar nav){ // Es un arreglo
+            Object ch3 = this.child3;
+            List<Node> dims = (ch3 instanceof NodeTree nt)? this.getInstructionNodes(nt) : null;
             if (dims == null) throw new IllegalStateException("No se pudo ejecutar la declaración de arreglo, falta algún operando u operando.");
             int parDims = dims.size(); // Se divide en dos porque si se tiene [][] se tienen 4 caracteres: 2*[ + 2*] = 4, por lo que 4/2 = 2 que coincice con el numero de dimensiones
             int varDims = nav.getShape().length;
-            //System.out.println("estas son las dimensiones segun nodeParam: " + dims);
             if(parDims != varDims) throw new IllegalStateException("Parametro invalido, las dimensiones del arreglo no coinciden, se piden "+ parDims + " pero se obtuvo "+ varDims);
             String name = (String) this.child2.execute();
-            //System.out.println("NAME 1:  " + name);
             NodeArrVar invar = (NodeArrVar) nav.copy(name);
-            //System.out.println("PARAM IMPRIMIENDO INVAR: " + invar);
             String intype, partype;
             intype = invar.getType();
             partype = (String)(this.child1).execute();
             if(intype.equals(partype)){
-
                 return new NodeLeaf(ParserSym.IDENTIFICADOR, invar);
             } else {
-                throw new IllegalStateException("No se pudo ejecutar la declaración de arreglo, los tipos no coinciden.");
+                System.out.println("los tipos no coinciden: " + intype + " "+invar.getIdentifier() +",  "+ partype + " "+ this.child2.execute());
+                throw new IllegalStateException("No se pudo ejecutar la declaración de arreglo, los tipos no coinciden: " + value+ " -> "+ intype + " " +" | " + (String)child2.execute() +" -> "+ partype);
             }
-
         }else{
             if(value instanceof NodeLeaf nl){
                 Object v = nl.execute();
-//                System.out.println("solo es un literal: " + v + " " + v.getClass().getSimpleName());
-
-
                 String intype, partype;
                 intype = getTypeFromValue(v);
                 partype = (String)(this.child1).execute();
@@ -95,8 +81,6 @@ public class NodeParam extends Node3 implements  InterfaceStruct, InterfaceExpr{
                     NodeVar nv = new NodeVar(ParserSym.IDENTIFICADOR, this.child1, this.child2, null);
                     nv.setValue(v);
                     result = nv;
-              //      nv.child2 = this.child2; // renombrar la variable antes de declararla
-//                    result = nv;
                 } else {
                     throw new IllegalStateException("No se pudo ejecutar la declaración de variable, los tipos no coinciden.");
                 }
@@ -109,8 +93,6 @@ public class NodeParam extends Node3 implements  InterfaceStruct, InterfaceExpr{
                     NodeVar nv = new NodeVar(ParserSym.IDENTIFICADOR, this.child1, this.child2, null);
                     nv.setValue(v);
                     result = nv;
-//                    nv.child2 = this.child2; // renombrar la variable antes de declararla
-//                    result = nv;
                 } else {
                     throw new IllegalStateException("No se pudo ejecutar la declaración de variable, los tipos no coinciden.");
                 }
@@ -124,12 +106,8 @@ public class NodeParam extends Node3 implements  InterfaceStruct, InterfaceExpr{
                     nv.setValue(v);
                     result = nv;
                 }
-
             }
-
         }
-
-        this.clean();
         return result;
     }
 

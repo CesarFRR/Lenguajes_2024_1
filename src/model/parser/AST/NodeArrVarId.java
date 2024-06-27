@@ -1,5 +1,4 @@
 package model.parser.AST;
-
 import model.parser.ParserSym;
 
 public class NodeArrVarId extends Node implements InterfaceExpr, InterfaceStruct{

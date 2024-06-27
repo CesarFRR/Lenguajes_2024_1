@@ -1,6 +1,4 @@
 package model.parser.AST;
-
-import model.parser.ParserSym;
 import model.parser.ParserSym;
 
 public class NodeFnGetAscii extends NodeLeaf implements InterfaceExpr{

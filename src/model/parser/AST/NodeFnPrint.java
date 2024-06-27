@@ -1,5 +1,4 @@
 package model.parser.AST;
-
 import model.parser.ParserSym;
 
 public class NodeFnPrint extends NodeLeaf implements InterfaceExpr{

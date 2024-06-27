@@ -1,33 +1,36 @@
 package model.parser.AST;
+import model.parser.ParserSym;
 
 public interface InterfaceExpr {
 
     public default Object getRealValue(Object value) {
+        Object v =value;
         while (true){
-            if (value instanceof Node n) {
-                value = n.execute();
-                if(value== null){
+            if (v instanceof Node n) {
+                v = n.execute();
+                if(v== null){
                     return null;
                 }
-                if (value instanceof NodeArrVarId) {
-                    value = ((NodeArrVarId) value).execute();
+                if (v instanceof NodeArrVarId) {
+                    v = ((NodeArrVarId) v).execute();
                 }
-                else if (value instanceof NodeVar) {
-                    value = ((NodeVar) value).getValue();
+                else if (v instanceof NodeVar) {
+                    v = ((NodeVar) v).getValue();
                 } else {
-                    return value;
-
+                    return v;
                 }
             } else {
-                return value;
+                return v;
             }
         }
     }
 
 
-    public default String cleanString(String str) {
-        return str.replace("\"", "");
+    public default String cleanString(String cadena) {
+        cadena = cadena.replace("\"", "");
+        return cadena;
     }
+
 
     public default Object copyValue(Object original) {
         String type = getTypeFromValue(original);

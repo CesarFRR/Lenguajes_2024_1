@@ -1,4 +1,4 @@
-package Data;
+package model.scanner;
 import java.util.List;
 import java.util.ArrayList;
 
@@ -104,6 +104,11 @@ String = \"(\\.|[^\"\\])*\" | \'(\\.|[^\'\\])*\'
 "len" { return symbol(TokenType.LEN, yytext()); } // len("hola") -> un int de la longitud de un string o un arreglo
 "sort" { return symbol(TokenType.SORT, yytext()); } // sort([3,2,1]) -> un arreglo ordenado
 "copy" { return symbol(TokenType.COPY, yytext()); } // copy([3,2,1]) -> una copia de un arreglo
+"floor" { return symbol(TokenType.FLOOR, yytext()); } // floor(3.5) -> un int de el valor entero de un float
+"ceil" { return symbol(TokenType.CEIL, yytext()); } // ceil(3.5) -> un int de el valor entero de un float
+"round" { return symbol(TokenType.ROUND, yytext()); } // abs(-3) -> un int de el valor absoluto de un int
+"toInt" { return symbol(TokenType.TOINT, yytext()); } // toInt(3.5) -> un int de un float solo arrays
+"toFloat" { return symbol(TokenType.TOFLOAT, yytext()); } // toFloat(3) -> un float de un int solo arrays
 /* Identificador */
 {Identificador} { return symbol(TokenType.IDENTIFICADOR, yytext()); }
 

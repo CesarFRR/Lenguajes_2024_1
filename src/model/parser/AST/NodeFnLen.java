@@ -1,7 +1,6 @@
 package model.parser.AST;
-
-
 import model.parser.ParserSym;
+
 public class NodeFnLen extends NodeLeaf implements InterfaceExpr, InterfaceStruct{
     private static TableAST table;
 
@@ -15,22 +14,23 @@ public class NodeFnLen extends NodeLeaf implements InterfaceExpr, InterfaceStruc
     @Override
     public Object execute() {
         Object result =0;
+        Object value = this.value;
 
 
-        if(this.value instanceof NodeVarId){
-            this.value = ((NodeVarId) this.value).execute();
-            //System.out.println("value: "+this.value + " type: "+this.value.getClass().getSimpleName());
+        if(value  instanceof NodeVarId){
+            value = ((NodeVarId)value).execute();
+            //System.out.println("value: "+this.value + " type: "+value.getClass().getSimpleName());
         }
 
         // Si no es un string, ES UN ARREGLO!!
 
         //TODO: Implementar el largo de un arreglo
 
-        if(this.value instanceof NodeArrVar || this.value instanceof NodeArrVarId){
-            if(this.value instanceof NodeArrVar arrVar) {
+        if(value instanceof NodeArrVar || value instanceof NodeArrVarId){
+            if(value instanceof NodeArrVar arrVar) {
                 result = arrVar.getShape()[0];
             }
-            if(this.value instanceof NodeArrVarId arrVarId) {
+            if(value instanceof NodeArrVarId arrVarId) {
                 String name = arrVarId.getName();
                 Node indexes = arrVarId.getIndexes();
                 NodeArrVar arrVar = (NodeArrVar) table.getId(name);
@@ -56,6 +56,7 @@ public class NodeFnLen extends NodeLeaf implements InterfaceExpr, InterfaceStruc
 
                 if (dimAccess.length >= shape.length) { // se quiere hallar el length del elemento en la posición dimAccess, posiblemente un string
                     result = arrVar.get(dimAccess);
+//                    System.out.println("se quiere hallar el length de: "+result+" de tipo: "+result.getClass().getSimpleName());
                     if (result instanceof String) {
                         result = cleanString((String) result).length();
                     }
@@ -69,8 +70,10 @@ public class NodeFnLen extends NodeLeaf implements InterfaceExpr, InterfaceStruc
             }
         }else{
 
+//                System.out.println("#0 -> se quiere hallar el length de: "+value+" de tipo: "+value.getClass().getSimpleName());
+                Object realValue = getRealValue(value);
+//                System.out.println("#1 -> se quiere hallar el length de: "+realValue+" de tipo: "+realValue.getClass().getSimpleName());
 
-                Object realValue = getRealValue(this.value);
                 if(realValue instanceof String s){
                     result= cleanString(s).length();
                 }

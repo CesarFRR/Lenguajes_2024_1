@@ -9,8 +9,8 @@ import java.util.Iterator;
 import java.util.List;
 import javax.swing.*;
 
-import model.parser.Parser;
 import model.parser.ParserAnalyzer;
+import model.parser.Parser;
 import model.scanner.Lexer;
 import model.scanner.LexerAnalyzer;
 import model.scanner.Token.Token;

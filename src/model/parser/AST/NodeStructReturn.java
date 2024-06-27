@@ -1,8 +1,6 @@
 package model.parser.AST;
-
 import model.parser.ParserSym;
 
-import java.util.Arrays;
 import java.util.Map;
 
 public class NodeStructReturn extends NodeLeaf implements InterfaceStruct, InterfaceExpr{

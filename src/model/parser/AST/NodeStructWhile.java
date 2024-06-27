@@ -1,4 +1,5 @@
 package model.parser.AST;
+import model.parser.ParserSym;
 
 public class NodeStructWhile extends Node2 implements InterfaceStruct, InterfaceExpr{
 

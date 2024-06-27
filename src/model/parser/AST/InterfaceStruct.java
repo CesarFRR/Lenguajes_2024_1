@@ -1,8 +1,12 @@
 package model.parser.AST;
+import model.parser.ParserSym;
 
 import java.util.*;
 
 public interface InterfaceStruct {
+    TableAST table = new TableAST();
+
+
     /**
      * Este es el estado por defecto de la Pila de estructura de control**/
     Object[] defaultElement = new Object[]{"main", null, null};
@@ -97,10 +101,33 @@ public interface InterfaceStruct {
     public default List<Integer> getIntValuesList(NodeTree root) {
         List<Integer> instructionNodes = new ArrayList<>();
         NodeTree currentNode = root;
-
+        Object cn = null;
+        String s = "";
         while (currentNode != null) {
-            if (currentNode.n != null) {
-                instructionNodes.add(  (int)getRealV(currentNode.n)  );
+            cn = currentNode.n;
+            if (cn != null) {
+                cn = (cn instanceof NodeLeaf) ? ((NodeLeaf)cn).value : ((NodeTree)cn).n;
+                if(cn instanceof NodeVarId nvi) {
+                    Node v = (Node)table.getId(nvi.getName());
+//                    System.out.println("CN es un NodeVarId " + v);
+                    if (v instanceof NodeVar) {
+                        cn = ((NodeVar) v).getValue();
+                    } else if (v instanceof NodeArrVar) {
+                        cn = ((NodeArrVar) v).getValue();
+                    }
+                }
+                if(cn instanceof NodeArrVarId navi){
+//                    System.out.println("CN es un NodeArrVarId "+ navi);
+                    cn = navi.execute();
+                }
+//                if(cn instanceof NodeVarId nvi) {
+//                    System.out.println("CN es un NodeVarId " + nvi  + " " + nvi.execute());
+//                }
+                cn = (cn instanceof Node) ? ((Node)cn).execute() : cn;
+
+//                System.out.println("CN es este:  " + cn + " " + cn.getClass() );
+//                System.out.println("   \n\nCN es este:  " + cn + " " + cn.getClass() );
+                instructionNodes.add( (int)(getRealV(cn)) );
             }
             currentNode = currentNode.child;
         }
@@ -108,14 +135,15 @@ public interface InterfaceStruct {
         return instructionNodes;
     }
     public default Object getRealV(Object value) {
+        Object v = value;
         while (true){
-            if (value instanceof Node) {
-                value = ((Node) value).execute();
-                if (value instanceof NodeVar) {
-                    value = ((NodeVar) value).getValue();
+            if (v instanceof Node n) {
+                v = n.execute();
+                if (v instanceof NodeVar nv) {
+                    v = nv.getValue();
                 }
             } else {
-                return value;
+                return v;
             }
         }
     }

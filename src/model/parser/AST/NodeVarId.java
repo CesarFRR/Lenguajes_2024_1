@@ -1,5 +1,4 @@
 package model.parser.AST;
-
 import model.parser.ParserSym;
 
 public class NodeVarId extends Node{
@@ -43,9 +42,12 @@ public class NodeVarId extends Node{
 
         Object var = table.getId(name);
         if(var ==null){
+            //System.out.println("Variable "+name+" no definida");
             return null;
         }
         if( var instanceof NodeArrVar nav){
+            //System.out.println("Variable "+name+" es un arreglo");
+
             return nav;
         }
         return ((NodeVar)var).getValue();

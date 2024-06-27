@@ -1,4 +1,5 @@
 package model.parser.AST;
+import model.parser.ParserSym;
 
 import java.util.List;
 
@@ -63,6 +64,7 @@ public class NodeStructIfElse extends Node3 implements InterfaceStruct{
                 for (Node node : instructionNodes) {
                     sent = node.execute();
                     status = getStatus();
+                    if (status==null) continue;
                     if (status.equals("break") || status.equals("continue") || status.equals("return")) return null;
                 }
 

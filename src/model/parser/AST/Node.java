@@ -1,4 +1,5 @@
 package model.parser.AST;
+import model.parser.ParserSym;
 import model.scanner.Token.TokenType;
 
 public abstract class Node {

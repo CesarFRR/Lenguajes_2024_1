@@ -1,4 +1,5 @@
 package model.parser.AST;
+import model.parser.ParserSym;
 
 import model.scanner.Token.TokenType;
 
@@ -13,7 +14,8 @@ public class NodeLeaf extends Node{
 
     @Override
     public String toString(int level) {
-        return value.toString();
+        String s = value == null ? "*null*" : value.toString();
+        return s;
     }
 
     @Override

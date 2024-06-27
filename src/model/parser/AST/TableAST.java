@@ -1,4 +1,5 @@
 package model.parser.AST;
+import model.parser.ParserSym;
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,6 +33,7 @@ public class TableAST {
         fnTable.clear();
     }
 
+
     public Object getId(String name) {
         // Buscar en el entorno actual
         if(idTable.isEmpty()) return null;
@@ -46,6 +48,23 @@ public class TableAST {
 //        System.out.println("Entorno actual: " + idTable.size());
         // Si no se encuentra y hay más de un entorno, buscar en el entorno global
         if (idTable.size() > 1) {
+            //si size es mayor o igual a 3, buscar en la cima de la pila, la posicion debajo de la cima y la base de la pila
+            if(idTable.size() >= 3){
+                Object temp = idTable.getLast().get(name);
+                if(temp != null){
+                    return temp;
+                }
+                temp = ((HashMap)idTable.toArray()[idTable.size()-2]).get(name);
+                if(temp != null){
+                    return temp;
+                }
+                temp = idTable.getFirst().get(name);
+                if(temp != null){
+                    return temp;
+                }
+            }
+
+
             return idTable.getFirst().get(name);
         }
         // Si no se encuentra y solo hay un entorno, devolver null

@@ -1,5 +1,4 @@
 package model.parser.AST;
-
 import model.parser.ParserSym;
 
 import java.util.*;
@@ -20,8 +19,12 @@ public class NodeArrVar extends Node implements InterfaceStruct, InterfaceExpr{
     public void isDeclarationWithAssignment(){
         this.declarationWithAssignment = true;
     }
+    public void isAssignment(){
+        this.assignment = true;
+    }
     private Node child4;
     private boolean declarationWithAssignment = false;
+    private boolean assignment = false;
     static {
         table = new TableAST();
     }
@@ -109,41 +112,129 @@ public class NodeArrVar extends Node implements InterfaceStruct, InterfaceExpr{
         if (child1 == null && child2 == null && child3 == null && child4 == null) {
             throw new IllegalStateException("No se pudo ejecutar la declaración de arreglo, falta por lo menos algun argumento.");
         }
+        Object ch4 = child4;
 
-        if (this.declarationWithAssignment) {
-            this.declarationWithAssignment = false;
+
+
+
+
+
+        ch4 = (ch4 instanceof NodeFnCall nfc) ? (Node)nfc.execute() : ch4;
+        ch4 = (ch4 instanceof NodeArrVarId navi)? navi.execute() : ch4;
+        ch4 = (ch4 instanceof Node)? ch4 : new NodeLeaf(0, ch4);
+        if(this.assignment){
+//            System.out.println("POR AQUI ES ASIGNACION A ARRAY:::  "+this.getIdentifier() + "  "+table.getId(this.getIdentifier()));
+//            System.out.println(child1 + "  "+child2 + "  "+child3 + "  "+child4);
             String tipo = (String) getRealValue(child1);
             String identificador = (String) getRealValue(this.child2.execute());
             int[] dim = this.convertListToIntArray(this.getIntValuesList((NodeTree) child3));
+            NodeArrVar nav = (NodeArrVar) table.getId(identificador);
+            nav.set(dim, ((Node)ch4).execute());
+
+            return nav; //Caso 1: Declaracion de arreglo
+        }
+
+
+        if (this.declarationWithAssignment) {
+            this.declarationWithAssignment = false;
+
+
+            String tipo = (String) getRealValue(child1);
+            String identificador = (String) getRealValue(this.child2.execute());
+            int[] dim = this.convertListToIntArray(this.getIntValuesList((NodeTree) child3));
+//            System.out.println("\n\n\nLOS INDICES SON: "+Arrays.toString(dim));
             this.setIdentifier(identificador);
             this.setType(tipo);
             this.setShape(dim);
 
-            List<Node[]> values = this.buildNestedList(child4);
-            child4 = null;
+            Object v = ch4 instanceof NodeVarId nvid ? table.getId(nvid.getName()) : ch4;
+
+                if(v instanceof NodeArrVar nav){
+//                    System.out.println("POR AQUI:::" + this.getIdentifier() + "  "+table.getId(this.getIdentifier()));
+                    v = table.getId(this.getIdentifier() );
+                    NodeArrVar nv =(NodeArrVar) nav.copy(identificador);
+                    nv.child4=null;
+                    this.child4 = null;
+                    table.setId(identificador, nv);
+                    return nv;
+                }
+
+
+
+
+
+
+
+            List<Node[]> values = this.buildNestedList((Node)ch4);
+//            child4 = null;
 
 
             if(this.array == null){
                 this.initialize(dim);
             }
-            NodeTree p = (NodeTree) child4;
-            System.out.println("#1-->p: "+p);
+            NodeTree p = (NodeTree) ch4;
+            //System.out.println("#1-->p: "+p);
             while (p instanceof NodeTree) {
                 p = p.child;
             }
-            System.out.println("p: "+p);
+//            System.out.println("p: "+p);
 
             //TODO: aqui se deben asignar los valores:
 
-            for(Node[] n : values){
-                System.out.print(  Arrays.toString(n) +  " , ");
-            }
-            System.out.println("");
+//            for(Node[] n : values){
+//                System.out.print(  Arrays.toString(n) +  " , ");
+//            }
+//            System.out.println("");
 
             this.assignValuesToMap(values);
             //
             NodeArrVar nodeArrVar = this;
             table.setId(identificador, nodeArrVar);
+//            ch4=null;
+//            child4 = null;
+            return nodeArrVar; //Caso 1: Declaracion de arreglo
+        }
+
+        if(child1!=null && child2!=null && child3!=null && ch4 != null){
+            String tipo = (String) getRealValue(child1);
+            String identificador = (String) getRealValue(this.child2.execute());
+            int[] dim = this.convertListToIntArray(this.getIntValuesList((NodeTree) child3));
+
+            Object v = ch4;
+            if(v instanceof NodeVarId nvid){
+                v = table.getId(nvid.getName());
+            }
+            if(v instanceof NodeArrVar nav){
+                NodeArrVar nv =(NodeArrVar) nav.copy();
+//                nv.child4=null;
+                nv.child1 = this.child1;
+                nv.child2 = this.child2;
+                nv.child3 = this.child3;
+                nv.setIdentifier(identificador);
+                nv.setType(tipo);
+                nv.setShape(dim);
+                nv.setArray(nv.getArray());
+//                this.child4 = null;
+                NodeArrVar av = this;
+//                System.out.println("NodeArrVar: execute() -> "+av + "identenificador: " + identificador + "  "+nv);
+                table.setId(identificador, av);
+//                ch4=null;
+//                child4 = null;
+                return nv;
+            }
+
+
+            this.setIdentifier(identificador);
+            this.setType(tipo);
+            this.setShape(dim);
+            if(this.array == null){
+                this.initialize(dim);
+            }
+            NodeArrVar nodeArrVar = this;
+            table.setId(identificador, nodeArrVar);
+//            ch4=null;
+//            child4 = null;
+//            System.out.println("daclaracion de arreglo vacio: "+nodeArrVar + " "+ nodeArrVar.getArray() + " "+nodeArrVar.getShape() + " "+nodeArrVar.getType() + " "+nodeArrVar.getIdentifier());
             return nodeArrVar; //Caso 1: Declaracion de arreglo
         }
 
@@ -152,7 +243,7 @@ public class NodeArrVar extends Node implements InterfaceStruct, InterfaceExpr{
 
         //TODO: implementar declaracion donde se guarda una instancia NodeArrVar en la tabla de simbolos
         // TODO: implementar la asignacion de un valor a un arreglo dado un indice
-        if(child1 != null && child2 != null && child3 != null && child4 == null){
+        if(child1 != null && child2 != null && child3 != null && ch4 == null){
             String tipo = (String) getRealValue(child1);
             String identificador = (String) getRealValue(this.child2.execute());
             int[] dim = this.convertListToIntArray(this.getIntValuesList((NodeTree) child3));
@@ -170,6 +261,8 @@ public class NodeArrVar extends Node implements InterfaceStruct, InterfaceExpr{
             NodeArrVar nodeArrVar = this;
             //System.out.println("NodearrVar==================> "+nodeArrVar);
             table.setId(identificador, nodeArrVar);
+//            ch4=null;
+//            child4 = null;
             return nodeArrVar; //Caso 1: Declaracion de arreglo
         }
 
@@ -179,7 +272,22 @@ public class NodeArrVar extends Node implements InterfaceStruct, InterfaceExpr{
             String name = (String) child2.execute();
             NodeArrVar nodeArrVar = (NodeArrVar) table.getId(name);
             int[] indices = this.convertListToIntArray(this.getIntValuesList((NodeTree) child3));
-            Object value = this.getRealValue(child4);
+
+            if(ch4 instanceof  NodeVarId nvid){
+                ch4 =(Node) table.getId(nvid.getName());
+            }
+
+            if (ch4 instanceof NodeArrVar nav) {
+                nodeArrVar.assignArray(nav);
+                ch4=null;
+                child4 = null;
+                return nodeArrVar;
+            }
+
+
+
+            Object value = this.getRealValue(ch4);
+            ch4=null;
             child4 = null;
             nodeArrVar.set(indices, value);
             return nodeArrVar; //Caso 2: Asignacion de valor a un arreglo
@@ -191,20 +299,27 @@ public class NodeArrVar extends Node implements InterfaceStruct, InterfaceExpr{
     public List<Node[]> buildNestedList(Node root) {
         List<Node[]> currentList = new ArrayList<>();
         Node currentNode = root;
+        Object curr= null;
 
         for (int i = 0; i < shape.length; i++) {
+            currentNode = (currentNode instanceof NodeExprArithmetic expr) ?  new NodeLeaf(0, expr.execute() ) : currentNode;
+//            System.out.println("currentNode: "+currentNode.execute());
             if (currentNode instanceof NodeTree nt) {
+//                System.out.println("0 - nt.n : "+nt.n);
+                nt.n = (nt.n instanceof NodeExprArithmetic expr) ?  new NodeLeaf(0, expr.execute() ) : nt.n;
+//                System.out.println("1 - nt.n : "+nt.n);
                 if (nt.n instanceof NodeLeaf) {
                     Node[] nodes = new Node[shape[shape.length - 1]];
                     for (int j = 0; j < nodes.length; j++) {
+
                         nodes[j] = nt.n;
-                        System.out.print("NodeLeaf "+j + ": "+nt.n+" ");
+//                        System.out.print("NodeLeaf "+j + ": "+nt.n+" ");
                         nt = nt.child;
                         if (nt == null) {
                             break;
                         }
                     }
-                    System.out.println("");
+//                    System.out.println("");
 
                     currentList.add(nodes);
                     break;
@@ -213,6 +328,8 @@ public class NodeArrVar extends Node implements InterfaceStruct, InterfaceExpr{
                     currentNode = nt.child;
                 }
             } else {
+                currentNode = (currentNode instanceof NodeExprArithmetic expr) ?  new NodeLeaf(0, expr.execute() ) : currentNode;
+
                 currentList.add(new Node[]{currentNode});
                 break;
             }
@@ -245,6 +362,7 @@ public class NodeArrVar extends Node implements InterfaceStruct, InterfaceExpr{
         }
 
         // Asigna un Node a cada clave en orden
+//        System.out.println("keys: "+keys + "  allNodes: "+allNodes);
         for (int i = 0; i < keys.size(); i++) {
             String key = keys.get(i);
             Node node = allNodes.get(i);
@@ -312,7 +430,7 @@ public class NodeArrVar extends Node implements InterfaceStruct, InterfaceExpr{
     private Object getDefaultValue() {
         return switch (type) {
             case "int" -> 0;
-            case "float" -> 0.0f;
+            case "float" -> -999999f;
             case "string" -> "";
             case "boolean" -> false;
             default -> throw new IllegalStateException("Unexpected value: " + type);
@@ -508,4 +626,74 @@ public class NodeArrVar extends Node implements InterfaceStruct, InterfaceExpr{
     public void setChild2(Node child2) {
         this.child2 = child2;
     }
+
+    public void floorAllValues() {
+        if ("float".equals(type)) {
+            for (String key : array.keySet()) {
+                Object value = array.get(key);
+                if (value instanceof Float) {
+                    array.put(key, Math.floor((Float) value));
+                }
+            }
+        }
+    }
+
+    public void ceilAllValues() {
+        if ("float".equals(type)) {
+            for (String key : array.keySet()) {
+                Object value = array.get(key);
+                if (value instanceof Float) {
+                    array.put(key, Math.ceil((Float) value));
+                }
+            }
+        }
+    }
+
+    public void roundAllValues() {
+        if ("float".equals(type)) {
+            for (String key : array.keySet()) {
+                Object value = array.get(key);
+                if (value instanceof Float) {
+                    array.put(key, Math.round((Float) value));
+                }
+            }
+        }
+    }
+
+    public void toInt() {
+        if ("float".equals(type)) {
+            for (String key : array.keySet()) {
+                Object v = array.get(key);
+                if(v instanceof Double){
+                    v =(int) ((Double) v).floatValue();
+                }else if (v instanceof Integer){
+                    v = (int)((Integer) v).floatValue();
+                }
+                array.put(key, v);
+            }
+            type = "int";
+            if (child1 instanceof NodeLeaf) {
+                ((NodeLeaf) child1).value= type;
+            }
+        }
+    }
+
+    public void toFloat() {
+        if ("int".equals(type)) {
+            for (String key : array.keySet()) {
+                Object value = array.get(key);
+                if (value instanceof Integer) {
+                    array.put(key, Float.valueOf((Integer) value));
+                } else if (value instanceof Double) {
+                    array.put(key, ((Double) value).floatValue());
+                }
+            }
+            type = "float";
+            if (child1 instanceof NodeLeaf) {
+                ((NodeLeaf) child1).value = type;
+            }
+        }
+    }
+
+
 }

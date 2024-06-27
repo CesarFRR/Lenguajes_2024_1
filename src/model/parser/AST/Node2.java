@@ -1,4 +1,5 @@
 package model.parser.AST;
+import model.parser.ParserSym;
 
 public class Node2 extends Node {
 

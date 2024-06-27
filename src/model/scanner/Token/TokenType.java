@@ -64,6 +64,11 @@ public enum TokenType {
     LEN(ColorType.FN),
     SORT(ColorType.FN),
     COPY(ColorType.FN),
+    FLOOR(ColorType.FN),
+    CEIL(ColorType.FN),
+    ROUND(ColorType.FN),
+    TOINT(ColorType.FN),
+    TOFLOAT(ColorType.FN),
     // Identificador
     IDENTIFICADOR(ColorType.ID),
 
@@ -185,6 +190,11 @@ enum TokenSymbol {
     LEN("len"),
     SORT("sort"),
     COPY("copy"),
+    FLOOR("floor"),
+    CEIL("ceil"),
+    ROUND("round"),
+    TOINT("toInt"),
+    TOFLOAT("toFloat"),
 
     // Identificador
     IDENTIFICADOR("IDENTIFICADOR"),

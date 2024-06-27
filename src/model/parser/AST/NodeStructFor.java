@@ -1,4 +1,5 @@
 package model.parser.AST;
+import model.parser.ParserSym;
 
 import java.util.List;
 
@@ -64,8 +65,10 @@ public class NodeStructFor extends Node4 implements InterfaceStruct, InterfaceEx
 
         List<Node> instructionNodes = (child4 instanceof NodeTree nt) ? this.getInstructionNodes(nt) : List.of(child4);
         String status;
+        int len = instructionNodes.size();
         FOR:
         while ((boolean) exprBoolean) {
+            instructionNodes = (child4 instanceof NodeTree nt) ? this.getInstructionNodes(nt) : List.of(child4);
             SENTENCIAS:
             for (Node node : instructionNodes) {
                 Object sentencia = node.execute();
@@ -98,9 +101,9 @@ public class NodeStructFor extends Node4 implements InterfaceStruct, InterfaceEx
 //        //table.printMap(0);
 //        System.out.println("==========");
         //table.printMap(1);
-
-        NodeVar delete = (NodeVar) child1;
-        table.deleteId(delete.getName());
+        String indexName = ((NodeVar) child1).getName();
+        
+        table.deleteId(indexName);
         this.removeState();
         //table.popIdMap();
 

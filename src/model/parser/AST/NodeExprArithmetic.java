@@ -1,5 +1,4 @@
 package model.parser.AST;
-
 import model.parser.ParserSym;
 
 public class NodeExprArithmetic extends Node3 implements InterfaceExpr{
@@ -57,6 +56,7 @@ public class NodeExprArithmetic extends Node3 implements InterfaceExpr{
         Object operator = getRealValue(child2.execute());
         Object right = getRealValue(r);
 
+
         switch (operator.toString()) {
             case "+" -> {
                 if (isType(left, "String") || isType(right, "String")) {
@@ -75,6 +75,7 @@ public class NodeExprArithmetic extends Node3 implements InterfaceExpr{
                     return Float.parseFloat(left.toString()) - Float.parseFloat(right.toString());
                 } else {
                     //this.result_type = "Integer";
+//                    System.out.println("e1: " + left + " e2: " + right + " operator: " + operator + "\n");
                     return Integer.parseInt(left.toString()) - Integer.parseInt(right.toString());
                 }
             }

@@ -1,5 +1,4 @@
 package model.parser.AST;
-
 import model.parser.ParserSym;
 
 import java.util.ArrayList;
@@ -34,8 +33,9 @@ public class NodeFnCall extends Node3 implements InterfaceExpr, InterfaceStruct{
     @Override
     public Object execute() {
         Object result = null;
-        NodeFn fn = (NodeFn) table.getFn((String) this.child1.execute());
-        if(fn == null) throw new IllegalStateException("No se pudo ejecutar la función, no existe.");
+        String fnName = (String) this.child1.execute();
+        NodeFn fn = (NodeFn) table.getFn(fnName);
+        if(fn == null) throw new IllegalStateException("No se pudo ejecutar la función " +fnName +", no existe.");
         List<Node> args = (this.child2 instanceof NodeTree nt)? this.getInstructionNodes(nt) : new ArrayList<Node>();
 
 
@@ -49,6 +49,7 @@ public class NodeFnCall extends Node3 implements InterfaceExpr, InterfaceStruct{
 
         }else{
             // HAY ARGUMENTOS, COMPROBAR QUE LOS ARGUMENTOS SEAN DEL TIPO CORRECTO
+//            System.out.println("FNCALL: Ejecutando llamado a la función: " + fn);
             fn.setArgs(args);
             result = fn.execute();
         }
@@ -58,6 +59,8 @@ public class NodeFnCall extends Node3 implements InterfaceExpr, InterfaceStruct{
             if(v instanceof NodeVar nv)    result = nv;
             if(v instanceof NodeArrVar nf)     result = nf;
         }
+
+        result = result instanceof Node ? result : new NodeLeaf(0, result);
 
         return result;
     }

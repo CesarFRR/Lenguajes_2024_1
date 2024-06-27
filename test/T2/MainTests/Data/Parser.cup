@@ -11,7 +11,7 @@ class Parser;
 // codigo de java que puede ingresar el usuario para errores y esas cosas:
 
 parser code {:
-    T2.MainTests.AST.TableAST tabla = new T2.MainTests.AST.TableAST();
+    T2.MainTests.TableAST tabla = new T2.MainTests.TableAST();
 
 
     public void report_error(String message, Object info) {

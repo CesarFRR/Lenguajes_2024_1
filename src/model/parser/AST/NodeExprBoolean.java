@@ -1,4 +1,5 @@
 package model.parser.AST;
+import model.parser.ParserSym;
 
 public class NodeExprBoolean extends Node3 implements InterfaceExpr{
 
@@ -37,7 +38,14 @@ public class NodeExprBoolean extends Node3 implements InterfaceExpr{
             if (!(operator instanceof String)) throw new IllegalStateException("El operador no es válido. (1)");
 
             if (e1 instanceof String || e2 instanceof String) {
-                result = (e1.toString()).compareTo(e2.toString()) == 0;
+                Object a, b;
+                a = e1 instanceof Node n? n.execute() : e1;
+                b = e2 instanceof Node n? n.execute() : e2;
+                a = a.toString().replace("\"", "");
+                b = b.toString().replace("\"", "");
+                result = a.toString().equals(b.toString());
+                if (operator.equals("!=")) result = !((boolean) result);
+
             }else if(e1 instanceof Boolean && e2 instanceof Boolean){
                 result = switch ((String) operator) {
                     case "&&" -> (Boolean) e1 && (Boolean) e2;
@@ -50,6 +58,7 @@ public class NodeExprBoolean extends Node3 implements InterfaceExpr{
             } else {
                 double diff = 0;
                 double epsilon = 1e-10; // o cualquier otro valor pequeño
+//                System.out.println("e1: " + e1 + " e2: " + e2 + " operator: " + operator + "\n");
                 diff = ((Number) e1).doubleValue() - ((Number) e2).doubleValue();
                 result = switch ((String) operator) {
                     case "<" -> Math.abs(diff) < epsilon ? false : diff < 0;
