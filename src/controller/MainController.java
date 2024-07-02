@@ -23,12 +23,12 @@ public  class MainController {
 
         String osName = System.getProperty("os.name").toLowerCase();
         boolean isWindows = osName.contains("windows");
-        utils.adjustCurrentDir();
+        //utils.adjustCurrentDir();
         
-        if (!utils.fileExists("src/model/scanner", "Lexer.java")) {
-            System.out.println("\nNo existe Lexer.java, generando...\n");
-            utils.generateFlexJavaFile(FlexJavaTarget, isWindows);
-        }
+//        if (!utils.fileExists("src/model/scanner", "Lexer.java")) {
+//            System.out.println("\nNo existe Lexer.java, generando...\n");
+//            utils.generateFlexJavaFile(FlexJavaTarget, isWindows);
+//        }
         utils.initUXLookAndFeel(isWindows, isWindows); 
     }
     

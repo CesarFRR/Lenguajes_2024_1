@@ -1068,7 +1068,7 @@ class Lexer implements Scanner {
           // fall through
           case 96: break;
           case 41:
-            { return symbol(TokenType.BOOL, yytext(), yyline, yycolumn);
+            { return symbol(TokenType.BOOLEAN, yytext(), yyline, yycolumn);
             }
           // fall through
           case 97: break;
