@@ -1,26 +1,70 @@
-# Taller 2: Analizador sintáctico y desarrollo total del lenguaje de programación
+<h1 align="center">Taller 2: Analizador sintáctico y desarrollo del Lenguaje de Programación con JFLEX y CUP</h1>
+<p align="center">
+  <img alt="logo.jpg" src="src/main/java/com/unal/data/logo.png"/>
+</p>
 
 ## Descripción
-
 Este es un lenguaje de programación completo que soporta las siguientes características:
 
+## Características
 - Estructuras de control como `for`, `while`, `if`, `if else`.
 - Definición y llamada de funciones, incluyendo soporte para recursión.
 - Funciones integradas para la manipulación de arreglos y cadenas.
 - Soporte para matrices de N dimensiones.
 
-## Instalación
+## Requisitos
 
-// Aquí puedes proporcionar instrucciones sobre cómo instalar y configurar tu lenguaje de programación.
+- Java 17 o superior (Usamos la version 21 LTS)
+- Maven
 
-## Uso
+## Compilación y Ejecución
 
-// Aquí puedes proporcionar ejemplos de cómo usar tu lenguaje de programación. Podrías incluir ejemplos de código y explicar qué hace cada uno.
+Para compilar el proyecto, navegue hasta el directorio raíz del proyecto y ejecute el siguiente comando:
 
-## Contribuir
+```bash
+mvn clean package
+```
+Se crearán dos archivos jar en la carpeta `target/`:
 
-// Si estás interesado en recibir contribuciones a tu proyecto, aquí puedes proporcionar instrucciones sobre cómo hacerlo.
+- [Lenguajes_2024_1-1.0-SNAPSHOT-jar-with-dependencies.jar](target%2FLenguajes_2024_1-1.0-SNAPSHOT-jar-with-dependencies.jar): Este archivo es un jar con todas las dependencias incluidas.
+- [Lenguajes_2024_1-1.0-SNAPSHOT.jar](target%2FLenguajes_2024_1-1.0-SNAPSHOT.jar): Este archivo es un jar sin dependencias.
+Para ejecutar el proyecto, use el siguiente comando, reemplazando `nombre-del-archivo` con el nombre de su archivo de entrada:
+
+```bash
+java -jar target/Lenguajes_2024_1-1.0-SNAPSHOT-jar-with-dependencies.jar
+```
+
+Adicionalmente hemos agregado unos archivos compilados jar del proyecto, los cuales pueden ser ejecutados con el siguiente comando:
+
+```bash
+java -jar EJECUTABLE/Lenguajes_2024_1.jar
+```
+```bash
+java -jar EJECUTABLE/COMPILADOR.jar PROGRAMA.cz
+```
+
+
+## Ejemplos
+
+Puede encontrar ejemplos de programas escritos en nuestro lenguaje en el directorio `src/test/resources/`.
+Así como tambien en la carpeta `EJECUTABLE/` se encuentran los archivos de prueba.
+
+## Equipo de Desarrollo
+
+- Cesar Fabian Rincon Robayo: crinconro@unal.edu.co
+- Julian Andres Vargas Gutierrez: julvargasgu@unal.edu.co
+- Diana Marcela Bello Lopez: dbellol@unal.edu.co
+- Javier Esteban Gonzalez Vivas: javgonzalezvi@unal.edu.co
+- Kevin Julian Gonzalez Guerra: kgonzalezg@unal.edu.co
 
 ## Licencia
 
-// Si tu proyecto está bajo una licencia, puedes mencionarlo aquí.
+Este proyecto está licenciado bajo los términos de la licencia MIT.
+
+## Contribuciones
+
+Las contribuciones son bienvenidas. Por favor, abra un problema o haga un pull request para sugerencias de mejoras o correcciones de errores.
+
+## Agradecimientos
+
+Agradecemos a la Universidad Nacional de Colombia por proporcionar el entorno y los recursos para desarrollar este proyecto.
