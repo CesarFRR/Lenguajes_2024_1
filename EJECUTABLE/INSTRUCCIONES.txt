@@ -1,0 +1,19 @@
+
+
+Lenguajes_2024_1.jar 
+
+Es el ejecutable del proyecto COMPLETO, con interfaz y sus caracteristicas.
+Aqui hay un ejemplo de su uso:
+
+java -jar Lenguajes_2024_1.jar
+
+
+
+
+COMPILADOR.jar 
+
+Es el compilador como tal sin interfaz ni artefactos, para ejecutar codigo .cz O .txt directamente en la consola.
+Aqui hay un ejemplo de su uso:
+
+java -jar COMPILADOR.jar PROGRAMA.cz 
+

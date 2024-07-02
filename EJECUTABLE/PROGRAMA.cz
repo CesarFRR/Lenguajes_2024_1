@@ -1,0 +1,467 @@
+
+
+fn concat(int[] conc0, int[] conc1){
+    int[len(conc0) + len(conc1)] result;
+    for (int concati = 0; concati < len(conc0); concati = concati + 1){
+        result[concati] = conc0[concati];
+    }
+    for (int concatj = 0; j < len(conc1); concatj = concatj + 1){
+        result[len(conc0) + concatj] = conc1[concatj];
+    }
+    return result;
+}
+
+
+fn push(int[] push_arr, int push_val){
+    int len0 = len(push_arr);
+    int[len0 + 1] result;
+    for (int pushi = 0; pushi < len0; pushi = pushi + 1){
+        result[pushi] = push_arr[pushi];
+    }
+    result[len0] = push_val;
+    return result;
+}
+fn pop(int[] pop_arr){
+    int len0 = len(pop_arr);
+    int[len0 - 1] result;
+    for (int popi = 0; popi < (len0 - 1); popi = popi + 1){
+        result[popi] = pop_arr[popi];
+    }
+    return result;
+    
+ }
+fn substr(int[] substr_arr, int start, int end){
+    int len0 = len(substr_arr);
+    int[end - start] result;
+    for (int substri = start; substri < end; substri = substri + 1){
+        result[substri - start] = substr_arr[substri];
+    }
+    return result;
+}
+fn stringToArr(string stringToArr_str){
+    int len0 = len(stringToArr_str);
+    int[len0] result;
+    for (int strtoarri = 0; strtoarri < 4; strtoarri = strtoarri + 1){
+        result[strtoarri] = getChar(stringToArr_str, strtoarri);
+    }
+    return result;
+}
+
+fn generar_alfabeto(int n){
+    string[n] result;
+    string alfabeto = "abcdefghijklmnopqrstuvwxyz";
+    for (int genari = 0; genari < n; genari = genari + 1){
+        result[genari] = getChar(alfabeto, genari);
+    }
+    println("generar_alfabeto -> result es: " + result);
+    return result;
+}
+ fn mini(int min_a, int min_b){
+    if (min_a < min_b){
+        return min_a;
+    }
+    return min_b;
+}
+fn maxi(int max_a, int max_b){
+    if (max_a > max_b){
+        return max_a;
+    }
+    return max_b;
+}
+fn minif(float fmin_a, float fmin_b){
+    if (fmin_a < fmin_b){
+        return fmin_a;
+    }
+    return fmin_b;
+}
+fn maxif(float fmax_a, float fmax_b){
+    if (fmax_a > fmax_b){
+        return fmax_a;
+    }
+    return fmax_b;
+}
+     fn multic_f(float multic_x, float[] multic_intervalos, string[] multic_alfabeto){
+//                                    println("multic_f -> x es: " + multic_x + " intervalos es: " + multic_intervalos + " alfabeto es: " + multic_alfabeto);
+        string result;
+        for (int multfi = 0; multfi < len(multic_intervalos); multfi = multfi + 1){
+            if (multic_x < multic_intervalos[multfi]){
+                result = multic_alfabeto[multfi];
+                break;
+            }else{
+                result = multic_alfabeto[len(multic_alfabeto) - 1];
+            }
+        }
+        println("multic_f -> result es: " + result);
+        return result;
+    }
+
+fn multicotomizacion(string[] alfabeto, int lenM10, float M0, float N0, float[] conjunto_ejemplo){
+
+    println("multicotomizacion -> alfabeto: " + alfabeto + " lenM10: " + lenM10 + " M0: " + M0 + " N0: " + N0 + " conjunto_ejemplo: " + conjunto_ejemplo);
+    sort(conjunto_ejemplo);
+    float min_val = minif(M0, N0);
+    float max_val = maxif(M0, N0);
+    float[lenM10-1] intervalos;
+    string result;
+    string temp0 ="";
+    for (int i0 = 0; i0 < (lenM10 - 1); i0 = i0 + 1){
+        
+        intervalos[i0] =  min_val +  ( (i0 *(max_val - min_val)) / lenM10 ) ;
+    }
+    for (int i1 = 0; i1 < len(conjunto_ejemplo); i1 = i1 + 1){
+        for (int i2 = 0; i2 < len(intervalos); i2 = i2 + 1){
+        if(conjunto_ejemplo[i1] != -999999.0 ){
+            if (conjunto_ejemplo[i1] < intervalos[i2]){
+                temp0 = alfabeto[i2];
+                break;
+            }else{
+                temp0 = alfabeto[len(alfabeto) - 1];
+            }
+        }
+            
+        }
+        result = result + temp0;
+    }
+    println("multicotomizacion -> result es: " + result);
+    return result;
+}
+fn contar_rachas(string[] cadena){
+    // lo que quiero es contar cuantas rachas hay en la cadena, o cuantas veces cambia el valor de contarri
+    int rachas = 1;
+    for (int contarri = 0; contarri < (len(cadena) - 1); contarri = contarri + 1){
+        if (cadena[contarri] != cadena[contarri + 1]){
+            rachas = rachas + 1;
+        }
+    }
+    return rachas;
+}
+fn contar_rachas0(string cadena){
+    // lo que quiero es contar cuantas rachas hay en la cadena, o cuantas veces cambia el valor de contarri
+    string[len(cadena)] cadena_arr = stringToArr(cadena);
+    int rachas = 1;
+    for (int contarri = 0; contarri < (len(cadena_arr) - 1); contarri = contarri + 1){
+        if (cadena_arr[contarri] != cadena_arr[contarri + 1]){
+            rachas = rachas + 1;
+        }
+    }
+    return rachas;
+}
+
+fn getarr(float[][] matrix, int index){
+    int lenarr=0;
+    float nullvalue = -999999;
+    if(matrix[index][0] == nullvalue){
+        lenarr = len(matrix[index]);
+    }
+    for (int getarri = 0; getarri < len(matrix[index]); getarri = getarri + 1){
+        println("el valor de matrix es: " + matrix[index][getarri]);
+        if(matrix[index][getarri] == nullvalue){
+            lenarr = getarri+1;
+            break;
+        }
+    }
+    if(lenarr == 0){
+        lenarr = len(matrix[index]);
+    }
+
+    float[lenarr] result;
+    for (int getarri2 = 0; getarri2 < lenarr; getarri2 = getarri2 + 1){
+        result[getarri2] = matrix[index][getarri2];
+        println("result de matrix es: " + result);
+    }
+    println("result de get arrr es: " + result);
+    return result;
+}
+//ahora una funcion getarr pero de 3 dimensiones no de 2, se pasarán los indices de las dos primeras dimensiones
+fn getarr3(float[][][] matrix, int index1, int index2){
+      // println("index1: " + index1 + " index2: " + index2 + " matrix: " + matrix);
+    int lenarr;
+    float nullvalue = -999999;
+    if(matrix[index1][index2][0] == nullvalue){
+        lenarr = len(matrix[index1][index2]);
+    }
+    for (int i0 = 0; i0 < len(matrix[index1][index2]); i0= i0+ 1){
+        if(matrix[index1][index2][i0] == nullvalue){
+            lenarr = i0+1;
+            break;
+        }
+    }
+    if(lenarr == 0){
+        lenarr = len(matrix[index1][index2]);
+    }
+
+    float[lenarr] result;
+    for (int i1 = 0; i1 < lenarr; i1 = i1 + 1){
+        result[i1] = matrix[index1][index2][i1];
+    }
+    
+    return result;
+   
+
+}
+
+fn cleanString(string s){
+    string cleanresult = "";
+    string current;
+    for (int cleani = 0; cleani < len(s); cleani = cleani + 1){
+        println("cleani: " + cleani);
+        current = getChar(s, cleani);
+        if (current!= ' '){
+            cleanresult = cleanresult + current;
+        }
+    }
+    return cleanresult;
+}
+
+//                            //vamos a probar la fn concat
+//                            println("vamos a probar la fn concat");
+//                            int[3] arr0 = [1, 2, 3];
+//                            int[3] arr1 = [4, 5, 6];
+//                            int[6] arr2 = concat(arr0, arr1);
+//                            println(arr2);
+//                            //vamos a probar la fn push
+//                            println("vamos a probar la fn push");
+//                            int[3] arr3 = [1, 2, 3];
+//                            int[4] arr4 = push(arr3, 4);
+//                            println(arr4);
+//                            // vamos a probar la fn pop
+//                            println("vamos a probar la fn pop");
+//                            int[4] arr5 = [1, 2, 3, 4];
+//                            int[3] arr6 = pop(arr5);
+//                            println(arr6);
+//                            // vamos a probar la fn substr
+//                            println("vamos a probar la fn substr");
+//                            int[4] arr7 = [1, 2, 3, 4];
+//                            int[2] arr8 = substr(arr7, 1, 3);
+//                            println(arr8);
+//                            // vamos a probar la fn stringToArr
+//                            println("vamos a probar la fn stringToArr");
+//                            string str0 = "hola";
+//                            int[4] arr9 = stringToArr(str0);
+//                            println(arr9);
+//                            // vamos a probar la fn generar_alfabeto
+//                            println("vamos a probar la fn generar_alfabeto");
+//                            int n1 = 5;
+//                            string[5] arr10 = generar_alfabeto(n1);
+//                            println(arr10);
+//                            // vamos a probar la fn mini
+//                            println("vamos a probar la fn mini");
+//                            int a = 5;
+//                            int b = 3;
+//                            int minab = mini(a, b);
+//                            println(minab);
+//
+//                            // vamos a probar maxi
+//                            println("vamos a probar la fn maxi");
+//                            int a1 = 5;
+//                            int b1 = 3;
+//                            int maxab = maxi(a1, b1);
+//                            println(maxab);
+//
+//                            // vamos a probar la fn multic_f
+//                            println("vamos a probar la fn multic_f");
+//                            int x = 3;
+//                            float[3] intervalos = [1, 2, 3];
+//                            string[4] alfabeto = ["a", "b", "c", "d"];
+//                            string res = multic_f(x, intervalos, alfabeto);
+//                            println(res);
+//                            // vamos a probar la fn multicotomizacion
+//                            println("vamos a probar la fn multicotomizacion");
+//                            int n2 = 5;
+//                            int M2 = 1;
+//                            int N2= 10;
+//                            int[5] datos = [1, 2, 3, 4, 5];
+//                            string res2 = multicotomizacion(n2, M2, N2, datos);
+//                            println(res2);
+//
+//                            // vamos a probar la fn contar_rachas
+//                            println("vamos a probar la fn contar_rachas");
+//                            string[7] cadenacount = ["a", "a", "a", "a", "c", "c", "f"];
+//                            println("contar: " + cadenacount);
+//                            int res3 = contar_rachas(cadenacount);
+//                            println(res3);
+//                            
+//                            // vamos a probar getarr
+//                            println("vamos a probar la fn getarr");
+//                            float[2][3] matrix = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]];
+//                            int index2 = 1;
+//                            float[3] res4 = getarr(matrix, index2);
+
+// vamos a probar todo:
+//println("vamos a probar todo");
+println("
+TALLER 2
+");
+
+// DATOS ESTATICOS
+float nullf =  -999999;
+
+// DATOS DE ENTRADA
+float[2] N1 = [5.4, -9.2];
+float[3] M1 = [-7.4, 1.2, 0.58];
+float[2][3][4] D1 = [[[15.9, -4.0, 66.1, nullf], [-6.1, 3.9, nullf, nullf], [4.2, -1.3, 12.4, 5.8]], [[23.8, nullf, nullf, nullf], [4.5, 3.6, -0.5, nullf], [2.2, -5.6, nullf, nullf]]]; 
+
+println("DATOS DE ENTRADA:
+N1: " + N1 + "
+M1: " + M1 + "
+D1: " + D1);
+
+float N;
+float M;
+int nullindex = 0;
+int lenM1 = len(M1);
+int lenN1 = len(N1);
+float conjunto_ejemplo_n;
+float[len(D1[0][0])] conjunto_ejemplo;
+float[len(D1[0][0])] conjunto_ejemplo_null;
+string cadena_multicotomizada ="";
+int numero_rachas_multicotomizadas;
+int[len(D1)][len(D1[0])] conjunto_ejemplo2;
+float min_val;
+float max_val;
+float[lenM1] intervalos;
+float[lenM1] intervalos_null;
+float intervalos_n;
+string result;
+string temp0 ="";
+string contarr0;
+string contarr1;
+ int rachas =0;
+
+string[lenM1] alfabeto;
+// vamos a generar el alfabeto sin llamar a la funcion generar_alfabeto, aqui lo hacemos directamente
+for (int i3 = 0; i3 < lenM1; i3 = i3 + 1){
+    alfabeto[i3] = getChar("abcdefghijklmnopqrstuvwxyz", i3);
+}
+println("Alfabeto: " + alfabeto);
+
+println("
+EJECUTANDO TALLER 2:");
+for (int i = 0; i < lenN1; i = i + 1){
+    for (int j = 0; j < lenM1; j = j + 1){
+        N = N1[i];
+        M = M1[j];
+        nullindex = 0;
+        conjunto_ejemplo = conjunto_ejemplo_null;
+        result = "";
+        intervalos_n = 0;
+        intervalos = intervalos_null;
+        contarr0 = "";
+        contarr1 = "";
+        rachas = 0;
+        println("
+
+");
+        
+            println("Para la casilla [" + i + "][" + j + "]: N: " + N + ", M: " + M);
+            
+             //vamos a remplazar getarr3 aqui para no tener que llamar a getarr3
+
+            for (int k = 0; k < len(conjunto_ejemplo); k = k + 1){
+                conjunto_ejemplo_n = D1[i][j][k];
+                if(conjunto_ejemplo_n != nullf){
+                    conjunto_ejemplo[nullindex] = conjunto_ejemplo_n;
+                    nullindex = nullindex + 1;
+                }else{
+                    break;
+                }
+            }
+
+            
+            
+            //sort(conjunto_ejemplo);
+            // vamos a hacer nuestro propio sort, asi nos toque usar bubble sort
+            for (int i0 = 0; i0 < nullindex; i0 = i0 + 1){
+                for (int i1 = 0; i1 < nullindex; i1 = i1 + 1){
+                    if(conjunto_ejemplo[i0] != nullf && conjunto_ejemplo[i1] != nullf){
+                        if(conjunto_ejemplo[i0] < conjunto_ejemplo[i1]){
+                            temp0 = conjunto_ejemplo[i0];
+                            conjunto_ejemplo[i0] = conjunto_ejemplo[i1];
+                            conjunto_ejemplo[i1] = temp0;
+                        }
+                    }
+                }
+            }
+            temp0 = "";
+            // imprimir el conjunto de ejemplo y si hay valores nulos -999999 no se imprimen esos valores, para eso hay que usar un for o dos
+            print("Conjunto: " + "[");
+            for (int k = 0; k < len(conjunto_ejemplo); k = k + 1){
+                if(conjunto_ejemplo[k] != nullf){
+                    print(conjunto_ejemplo[k]);
+                    if(k < (len(conjunto_ejemplo) - 1)){
+                        if(conjunto_ejemplo[k + 1] != nullf){
+                            print(", ");
+                        }
+                    }
+                }
+            }
+            println("]");                                        
+            min_val = minif(N, M);
+            max_val = maxif(N, M);
+
+            for (int i0 = 0; i0 < nullindex; i0 = i0 + 1){
+                // Paso 1: Multiplicación
+                intervalos_n = (i0+1) * (max_val - min_val);
+                //println("Paso 1 (Multiplicación) en iteración " + i0 + ": " + intervalos_n);
+            
+                // Paso 2: División
+                intervalos_n = intervalos_n / nullindex;
+                //println("Paso 2 (División) en iteración " + i0 + ": " + intervalos_n);
+                
+                // Paso 3: Suma
+                intervalos_n = min_val + intervalos_n;
+                //println("Paso 3 (Suma) en iteración " + i0 + ": " + intervalos_n);
+                
+                intervalos[i0] = intervalos_n;
+            }
+            
+            for (int i1 = 0; i1 < nullindex; i1 = i1 + 1){
+                for (int i2 = 0; i2 < len(intervalos); i2 = i2 + 1){
+                if(conjunto_ejemplo[i1] != nullf ){
+                    if (conjunto_ejemplo[i1] < intervalos[i2]){
+                        temp0 = alfabeto[i2];
+                        break;
+                    }else{
+                        temp0 = alfabeto[len(alfabeto) - 1];
+                    }
+                }
+                    
+                }
+                result = result + temp0;
+            }
+            cadena_multicotomizada = result;
+            
+            
+            
+            
+            
+            println("Cadena multicotomizada: " + cadena_multicotomizada);
+
+            // vamos a hacer contar_rachas0 sin llamar la funcion, pero cada paso de la funcion lo hago aqui, y cada indice de cada for, sea diferente:
+            
+            rachas = 1;
+            //cadena_multicotomizada = cleanString(cadena_multicotomizada);
+            //println("cadena_multicotomizada len: " + len(cadena_multicotomizada));
+            if(len(cadena_multicotomizada) > 2){
+                for (int contarri = 0; contarri < (len(cadena_multicotomizada) - 1); contarri = contarri + 1){
+                    contarr0 = getChar(cadena_multicotomizada, contarri);
+                    contarr1 = getChar(cadena_multicotomizada, contarri + 1);
+                    if (contarr0 != contarr1){
+                        rachas = rachas + 1;
+                    }
+                }
+            }else{
+                if(len(cadena_multicotomizada) == 2){
+                    contarr0 = getChar(cadena_multicotomizada, 0);
+                    contarr1 = getChar(cadena_multicotomizada, 1);
+                    if (contarr0 != contarr1){
+                        rachas = rachas + 1;
+                    }
+                }
+            }
+            
+            numero_rachas_multicotomizadas = rachas;
+            println("Número de rachas en cadena multicotomizada:: " + numero_rachas_multicotomizadas);
+    }
+}
+
